@@ -40,8 +40,15 @@ class Sink:
 class FakeWs:
     """Plays ``messages``; then closes (``close_after``) or idles, repeating if ``loop``."""
 
-    def __init__(self, name: str, messages: list[str], log: list[str], close_after: bool,
-                 interval_s: float = 0.0, loop: bool = False) -> None:
+    def __init__(
+        self,
+        name: str,
+        messages: list[str],
+        log: list[str],
+        close_after: bool,
+        interval_s: float = 0.0,
+        loop: bool = False,
+    ) -> None:
         self.name, self.messages, self.log = name, list(messages), log
         self.close_after, self.interval_s, self.loop = close_after, interval_s, loop
         self.sent: list[str] = []
@@ -95,16 +102,29 @@ def payloads(frames: list[Frame], source: str = "ws") -> list[str]:
     return [f.payload for f in frames if f.source == source]
 
 
-def session_for(settings: Settings, venue: str, connector: FakeConnector,
-                fetcher: Callable[[RestRequest], object], **session_overrides: object
-                ) -> tuple[WsVenueSession, Sink, StreamMonitor]:
+def session_for(
+    settings: Settings,
+    venue: str,
+    connector: FakeConnector,
+    fetcher: Callable[[RestRequest], object],
+    **session_overrides: object,
+) -> tuple[WsVenueSession, Sink, StreamMonitor]:
     adapter = build_adapter(venue, settings.venues[venue])
     sink = Sink()
     monitor = StreamMonitor(wall_clock_ns, 30.0)
     pipeline = Pipeline({venue: adapter}, "eu", sink, Deduplicator(60, 10_000), monitor)
     cfg = settings.session.model_copy(update={"daily_rotation_utc": None, **session_overrides})
-    sess = WsVenueSession(adapter, pipeline, connector, fetcher, cfg,  # type: ignore[arg-type]
-                          wall_clock_ns, monitor, counter_ids("t"), no_sleep)
+    sess = WsVenueSession(
+        adapter,
+        pipeline,
+        connector,
+        fetcher,
+        cfg,  # type: ignore[arg-type]
+        wall_clock_ns,
+        monitor,
+        counter_ids("t"),
+        no_sleep,
+    )
     return sess, sink, monitor
 
 
@@ -140,14 +160,17 @@ async def test_reconnects_after_drop_and_after_connect_failure(
 ) -> None:
     msgs = payloads(venue_frames("bybit"))
     conn = FakeConnector(
-        [lambda n: FakeWs(n, msgs[:5], [], close_after=True),
-         lambda n: FakeWs(n, msgs[5:10], [], close_after=False)],
+        [
+            lambda n: FakeWs(n, msgs[:5], [], close_after=True),
+            lambda n: FakeWs(n, msgs[5:10], [], close_after=False),
+        ],
         fail_first=1,
     )
-    sess, sink, monitor = session_for(settings, "bybit", conn, lambda r: "",
-                                      redundant_connections=1)
+    sess, sink, monitor = session_for(
+        settings, "bybit", conn, lambda r: "", redundant_connections=1
+    )
     await run_until(sess, lambda: len({r.connection_id for r in sink.records}) == 2)
-    assert [ws.sent for ws in conn.opened][0] == sess.adapter.subscribe_messages()
+    assert conn.opened[0].sent == sess.adapter.subscribe_messages()
     (venue,) = monitor.venues()
     assert venue.connects == 2 and venue.disconnects >= 1
 
@@ -163,7 +186,9 @@ async def test_redundant_connections_are_deduplicated(
     ref = Pipeline({"okx": adapter}, "eu", single, None)
     for i, m in enumerate(msgs):
         ref.process(Frame("okx", i, "x", "ws", m))
-    await run_until(sess, lambda: len(conn.opened) == 2 and len(sink.records) >= len(single.records))
+    await run_until(
+        sess, lambda: len(conn.opened) == 2 and len(sink.records) >= len(single.records)
+    )
     await asyncio.sleep(0.05)
     assert len(sink.records) == len(single.records)
     assert sess.pipeline.stats.duplicates > 0
@@ -174,18 +199,22 @@ async def test_rotation_overlaps_old_and_new_connection(
 ) -> None:
     msgs = payloads(venue_frames("hyperliquid"))
     log: list[str] = []
-    conn = FakeConnector([lambda n: FakeWs(n, msgs, log, close_after=False, interval_s=0.002,
-                                           loop=True)])
+    conn = FakeConnector(
+        [lambda n: FakeWs(n, msgs, log, close_after=False, interval_s=0.002, loop=True)]
+    )
     conn.log = log
-    sess, sink, _ = session_for(settings, "hyperliquid", conn, lambda r: "",
-                                redundant_connections=1, rotate_after_s=0.1)
+    sess, _, _ = session_for(
+        settings, "hyperliquid", conn, lambda r: "", redundant_connections=1, rotate_after_s=0.1
+    )
     await run_until(sess, lambda: sess.rotations >= 2)
     # The replacement is opened before the connection it replaces is closed.
     assert log.index("open ws1") < log.index("close ws0")
     assert log.index("open ws2") < log.index("close ws1")
 
 
-async def test_binance_sync_and_gap_resync_via_rest(settings: Settings, venue_frames: Frames) -> None:
+async def test_binance_sync_and_gap_resync_via_rest(
+    settings: Settings, venue_frames: Frames
+) -> None:
     frames = venue_frames("binance")
     ws_msgs = payloads(frames)
     snapshot_body = next(f.payload for f in frames if f.source == "rest")
@@ -198,8 +227,7 @@ async def test_binance_sync_and_gap_resync_via_rest(settings: Settings, venue_fr
         return snapshot_body
 
     conn = FakeConnector([lambda n: FakeWs(n, gapped, [], close_after=False)])
-    sess, sink, monitor = session_for(settings, "binance", conn, fetcher,
-                                      redundant_connections=1)
+    sess, sink, monitor = session_for(settings, "binance", conn, fetcher, redundant_connections=1)
     await run_until(sess, lambda: sess.resyncs >= 1 and len(calls) >= 4)
     assert {r.native_symbol for r in calls} == {"BTCUSDT", "ETHUSDT"}
     assert any(r.channel == "book_snapshot" for r in sink.records)
@@ -216,11 +244,20 @@ async def test_polling_session_with_mocked_iss(settings: Settings, venue_frames:
     with respx.mock(assert_all_called=False) as mock:
         mock.get(f"{base}/SBER/trades.json").respond(200, text=frames[0].payload)
         mock.get(f"{base}/SBER/orderbook.json").respond(200, text=frames[1].payload)
-        mock.get(f"{base}/GAZP/trades.json").respond(200, json={"trades": {"columns": [], "data": []}})
+        mock.get(f"{base}/GAZP/trades.json").respond(
+            200, json={"trades": {"columns": [], "data": []}}
+        )
         mock.get(f"{base}/GAZP/orderbook.json").respond(503)
         async with httpx.AsyncClient() as client:
-            sess = PollingVenueSession(adapter, pipeline, HttpxFetcher(client), settings.session,
-                                       wall_clock_ns, counter_ids("p"), no_sleep)
+            sess = PollingVenueSession(
+                adapter,
+                pipeline,
+                HttpxFetcher(client),
+                settings.session,
+                wall_clock_ns,
+                counter_ids("p"),
+                no_sleep,
+            )
             stop = asyncio.Event()
             task = asyncio.create_task(sess.run(stop))
             async with asyncio.timeout(5):
@@ -239,5 +276,11 @@ def test_polling_requires_interval(settings: Settings) -> None:
     cfg = settings.venues["moex"].model_copy(update={"poll_interval_s": None})
     adapter = build_adapter("moex", cfg)
     with pytest.raises(ValueError):
-        PollingVenueSession(adapter, Pipeline({}, "eu", Sink(), None), lambda r: "",  # type: ignore[arg-type]
-                            settings.session, wall_clock_ns, counter_ids("p"))
+        PollingVenueSession(
+            adapter,
+            Pipeline({}, "eu", Sink(), None),
+            lambda r: "",  # type: ignore[arg-type]
+            settings.session,
+            wall_clock_ns,
+            counter_ids("p"),
+        )

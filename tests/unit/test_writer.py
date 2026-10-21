@@ -25,7 +25,9 @@ class Clock:
 
 def trades(n: int, ts: int, start: int = 0) -> list[Record]:
     f = RecordFactory("binance", "eu", "c1", ts)
-    return [f.trade("BTC-USDT-SPOT", ts, i, str(i), 1.0, 1.0, "buy") for i in range(start, start + n)]
+    return [
+        f.trade("BTC-USDT-SPOT", ts, i, str(i), 1.0, 1.0, "buy") for i in range(start, start + n)
+    ]
 
 
 def make(tmp_path: Path, **kw: float) -> tuple[TapeWriter, Clock]:
@@ -125,5 +127,10 @@ def test_atomic_write_bytes(tmp_path: Path) -> None:
 @pytest.mark.parametrize("bad", [0, -1])
 def test_writer_settings_validate(bad: int) -> None:
     with pytest.raises(ValueError):
-        WriterSettings(flush_rows=bad, flush_interval_s=1, rotate_rows=1, rotate_interval_s=1,
-                       compression="zstd")
+        WriterSettings(
+            flush_rows=bad,
+            flush_interval_s=1,
+            rotate_rows=1,
+            rotate_interval_s=1,
+            compression="zstd",
+        )

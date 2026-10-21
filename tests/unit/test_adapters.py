@@ -162,7 +162,9 @@ def test_moex_polling_cursor_and_timezone(settings: Settings, venue_frames: Fram
     a = adapter_for(settings, "moex")
     reqs = a.poll_requests()
     assert {r.tag for r in reqs} == {"trades", "orderbook"}
-    assert reqs[0].url.endswith("/engines/stock/markets/shares/boards/TQBR/securities/SBER/trades.json")
+    assert reqs[0].url.endswith(
+        "/engines/stock/markets/shares/boards/TQBR/securities/SBER/trades.json"
+    )
     assert not any(k == "tradeno" for k, _ in reqs[0].params)
     frames = venue_frames("moex")
     events = parse_all(a, frames[:2])
@@ -180,16 +182,16 @@ def test_moex_polling_cursor_and_timezone(settings: Settings, venue_frames: Fram
     )
     assert not a.backlogged()
     snap = records(events, BookSnapshotLevel)
-    assert snap and isinstance(snap[0], BookSnapshotLevel) and snap[0].snapshot_id.startswith("TQBR-")
+    assert (
+        snap and isinstance(snap[0], BookSnapshotLevel) and snap[0].snapshot_id.startswith("TQBR-")
+    )
 
 
 def test_moex_full_page_is_backlogged(settings: Settings, venue_frames: Frames) -> None:
     a = adapter_for(settings, "moex")
     frame = venue_frames("moex")[0]
     assert frame.request is not None
-    req = frame.request.__class__(
-        frame.request.url, "trades", "SBER", (("limit", "2"),)
-    )
+    req = frame.request.__class__(frame.request.url, "trades", "SBER", (("limit", "2"),))
     a.parse_rest(req, frame.payload, RecordFactory("moex", "eu", "c", frame.ts_local))
     assert a.backlogged()
 

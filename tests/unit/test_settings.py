@@ -7,7 +7,9 @@ from tape_recorder.schema import Channel
 from tape_recorder.settings import Settings
 
 
-def test_yaml_defaults_and_data_root(make_settings: Callable[..., Settings], data_dir: Path) -> None:
+def test_yaml_defaults_and_data_root(
+    make_settings: Callable[..., Settings], data_dir: Path
+) -> None:
     s = make_settings()
     assert s.data_dir == data_dir
     assert s.project_root == data_dir / "market-tape-recorder"
