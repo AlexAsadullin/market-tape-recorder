@@ -16,7 +16,9 @@ pytestmark = pytest.mark.live
 LIVE_SECONDS = 20.0
 
 
-@pytest.mark.parametrize("venue", ["binance", "binance-usdm", "bybit", "okx", "hyperliquid", "moex"])
+@pytest.mark.parametrize(
+    "venue", ["binance", "binance-usdm", "bybit", "okx", "hyperliquid", "moex"]
+)
 async def test_live_capture_certifies(make_settings: Callable[..., Settings], venue: str) -> None:
     s = make_settings(TAPE_QUALITY__COVERAGE_WINDOW="observed", TAPE_SERVICE__ENABLED="false")
     stop = asyncio.Event()

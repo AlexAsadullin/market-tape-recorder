@@ -261,7 +261,16 @@ class WsVenueSession:
             current = await self._rotate(current, backoff, stop)
 
     async def _rotate(self, old: _Conn, backoff: Backoff, stop: asyncio.Event) -> _Conn | None:
-        """Overlapping handover: the new connection must deliver data before the old closes."""
+        """Handover to a new connection.
+
+        With ``overlap_rotation`` the new connection must deliver data before the old one is
+        closed. Without it (the naive baseline used in the report) the old connection is closed
+        first, which leaves a blind interval of one connect-and-subscribe round trip.
+        """
+        if not self.settings.overlap_rotation:
+            await self._close(old)
+            self.rotations += 1
+            return await self._open(backoff, stop)
         new = await self._open(backoff, stop)
         if new is None:
             return old

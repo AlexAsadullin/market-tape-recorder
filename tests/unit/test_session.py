@@ -284,3 +284,25 @@ def test_polling_requires_interval(settings: Settings) -> None:
             wall_clock_ns,
             counter_ids("p"),
         )
+
+
+async def test_naive_rotation_closes_before_opening(
+    settings: Settings, venue_frames: Frames
+) -> None:
+    msgs = payloads(venue_frames("hyperliquid"))
+    log: list[str] = []
+    conn = FakeConnector(
+        [lambda n: FakeWs(n, msgs, log, close_after=False, interval_s=0.002, loop=True)]
+    )
+    conn.log = log
+    sess, _, _ = session_for(
+        settings,
+        "hyperliquid",
+        conn,
+        lambda r: "",
+        redundant_connections=1,
+        rotate_after_s=0.1,
+        overlap_rotation=False,
+    )
+    await run_until(sess, lambda: sess.rotations >= 1 and len(conn.opened) >= 2)
+    assert log.index("close ws0") < log.index("open ws1")

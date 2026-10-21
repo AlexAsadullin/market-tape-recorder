@@ -63,6 +63,7 @@ class BackoffSettings(_Model):
 class SessionSettings(_Model):
     backoff: BackoffSettings
     redundant_connections: int = Field(ge=1)
+    overlap_rotation: bool
     rotate_after_s: float = Field(gt=0)
     daily_rotation_utc: str | None
     overlap_timeout_s: float = Field(gt=0)

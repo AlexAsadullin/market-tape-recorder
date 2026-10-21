@@ -35,6 +35,10 @@ dev = [
     "respx==0.23.1",
     "ruff==0.17.1",
 ]
+# Analog used only by the report experiments (make report), not by the recorder.
+bench = [
+    "cryptofeed==3.0.1",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -82,3 +86,14 @@ branch = true
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
+
+[tool.uv]
+# Transitive packages pinned to the platform set in ../constraints.txt.
+constraint-dependencies = [
+    "cffi==2.0.0",
+    "idna==3.18",
+    "multidict==6.9.1",
+    "propcache==0.5.2",
+    "pycparser==3.0",
+    "uvloop==0.22.1",
+]

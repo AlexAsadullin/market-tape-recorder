@@ -27,6 +27,7 @@ session:
     multiplier: 2.0
     jitter: 0.2
   redundant_connections: 2        # always-on overlapping connections per venue
+  overlap_rotation: true          # open the replacement before closing (false = naive baseline)
   rotate_after_s: 72000.0         # planned overlapping reconnect (exchanges drop at ~24 h)
   daily_rotation_utc: "00:00:05"  # also rotate after midnight so every day starts with a snapshot
   overlap_timeout_s: 15.0         # max wait for the new connection's first data before dropping old
