@@ -1,0 +1,953 @@
+{
+ "venue": "moex",
+ "note": "MOEX ISS: polled trades.json (tradeno cursor) and orderbook.json (SEQNUM) for SBER on TQBR.",
+ "frames": [
+  {
+   "recv_ms": 1792497600080,
+   "connection": "c1",
+   "source": "rest",
+   "payload": {
+    "trades": {
+     "columns": [
+      "TRADENO",
+      "TRADETIME",
+      "BOARDID",
+      "SECID",
+      "PRICE",
+      "QUANTITY",
+      "VALUE",
+      "PERIOD",
+      "TRADETIME_GRP",
+      "SYSTIME",
+      "BUYSELL",
+      "DECIMALS",
+      "TRADINGSESSION"
+     ],
+     "data": [
+      [
+       13000000842,
+       "14:59:56",
+       "TQBR",
+       "SBER",
+       285.39,
+       32,
+       91324.8,
+       "N",
+       "14:59:00",
+       "2026-10-20 14:59:56",
+       "S",
+       2,
+       1
+      ],
+      [
+       13000000880,
+       "14:59:56",
+       "TQBR",
+       "SBER",
+       285.39,
+       10,
+       28539.0,
+       "N",
+       "14:59:00",
+       "2026-10-20 14:59:56",
+       "S",
+       2,
+       1
+      ],
+      [
+       13000001658,
+       "14:59:57",
+       "TQBR",
+       "SBER",
+       285.41,
+       24,
+       68498.4,
+       "N",
+       "14:59:00",
+       "2026-10-20 14:59:57",
+       "S",
+       2,
+       1
+      ],
+      [
+       13000002447,
+       "14:59:58",
+       "TQBR",
+       "SBER",
+       285.39,
+       18,
+       51370.2,
+       "N",
+       "14:59:00",
+       "2026-10-20 14:59:58",
+       "S",
+       2,
+       1
+      ]
+     ]
+    }
+   },
+   "request": {
+    "url": "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/SBER/trades.json",
+    "tag": "trades",
+    "native_symbol": "SBER",
+    "params": [
+     [
+      "iss.meta",
+      "off"
+     ],
+     [
+      "iss.only",
+      "trades"
+     ],
+     [
+      "next_trade",
+      "1"
+     ],
+     [
+      "limit",
+      "5000"
+     ]
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497600140,
+   "connection": "c1",
+   "source": "rest",
+   "payload": {
+    "orderbook": {
+     "columns": [
+      "BOARDID",
+      "SECID",
+      "BUYSELL",
+      "PRICE",
+      "QUANTITY",
+      "SEQNUM",
+      "UPDATETIME",
+      "DECIMALS"
+     ],
+     "data": [
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.41,
+       757,
+       20261020150035,
+       "14:59:59",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.42,
+       433,
+       20261020150035,
+       "14:59:59",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.43,
+       561,
+       20261020150035,
+       "14:59:59",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.44,
+       562,
+       20261020150035,
+       "14:59:59",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.45,
+       708,
+       20261020150035,
+       "14:59:59",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.4,
+       106,
+       20261020150035,
+       "14:59:59",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.39,
+       207,
+       20261020150035,
+       "14:59:59",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.38,
+       586,
+       20261020150035,
+       "14:59:59",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.37,
+       576,
+       20261020150035,
+       "14:59:59",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.36,
+       726,
+       20261020150035,
+       "14:59:59",
+       2
+      ]
+     ]
+    }
+   },
+   "request": {
+    "url": "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/SBER/orderbook.json",
+    "tag": "orderbook",
+    "native_symbol": "SBER",
+    "params": [
+     [
+      "iss.meta",
+      "off"
+     ],
+     [
+      "iss.only",
+      "orderbook"
+     ]
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497605080,
+   "connection": "c1",
+   "source": "rest",
+   "payload": {
+    "trades": {
+     "columns": [
+      "TRADENO",
+      "TRADETIME",
+      "BOARDID",
+      "SECID",
+      "PRICE",
+      "QUANTITY",
+      "VALUE",
+      "PERIOD",
+      "TRADETIME_GRP",
+      "SYSTIME",
+      "BUYSELL",
+      "DECIMALS",
+      "TRADINGSESSION"
+     ],
+     "data": [
+      [
+       13000002719,
+       "15:00:01",
+       "TQBR",
+       "SBER",
+       285.41,
+       40,
+       114164.0,
+       "N",
+       "15:00:00",
+       "2026-10-20 15:00:01",
+       "B",
+       2,
+       1
+      ],
+      [
+       13000003584,
+       "15:00:01",
+       "TQBR",
+       "SBER",
+       285.4,
+       22,
+       62788.0,
+       "N",
+       "15:00:00",
+       "2026-10-20 15:00:01",
+       "B",
+       2,
+       1
+      ],
+      [
+       13000003955,
+       "15:00:02",
+       "TQBR",
+       "SBER",
+       285.4,
+       17,
+       48518.0,
+       "N",
+       "15:00:00",
+       "2026-10-20 15:00:02",
+       "S",
+       2,
+       1
+      ],
+      [
+       13000004672,
+       "15:00:03",
+       "TQBR",
+       "SBER",
+       285.39,
+       49,
+       139841.1,
+       "N",
+       "15:00:00",
+       "2026-10-20 15:00:03",
+       "B",
+       2,
+       1
+      ]
+     ]
+    }
+   },
+   "request": {
+    "url": "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/SBER/trades.json",
+    "tag": "trades",
+    "native_symbol": "SBER",
+    "params": [
+     [
+      "iss.meta",
+      "off"
+     ],
+     [
+      "iss.only",
+      "trades"
+     ],
+     [
+      "next_trade",
+      "1"
+     ],
+     [
+      "limit",
+      "5000"
+     ],
+     [
+      "tradeno",
+      "13000002447"
+     ]
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497605140,
+   "connection": "c1",
+   "source": "rest",
+   "payload": {
+    "orderbook": {
+     "columns": [
+      "BOARDID",
+      "SECID",
+      "BUYSELL",
+      "PRICE",
+      "QUANTITY",
+      "SEQNUM",
+      "UPDATETIME",
+      "DECIMALS"
+     ],
+     "data": [
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.41,
+       660,
+       20261020150134,
+       "15:00:04",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.42,
+       825,
+       20261020150134,
+       "15:00:04",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.43,
+       308,
+       20261020150134,
+       "15:00:04",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.44,
+       109,
+       20261020150134,
+       "15:00:04",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.45,
+       56,
+       20261020150134,
+       "15:00:04",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.4,
+       612,
+       20261020150134,
+       "15:00:04",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.39,
+       215,
+       20261020150134,
+       "15:00:04",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.38,
+       857,
+       20261020150134,
+       "15:00:04",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.37,
+       681,
+       20261020150134,
+       "15:00:04",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.36,
+       379,
+       20261020150134,
+       "15:00:04",
+       2
+      ]
+     ]
+    }
+   },
+   "request": {
+    "url": "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/SBER/orderbook.json",
+    "tag": "orderbook",
+    "native_symbol": "SBER",
+    "params": [
+     [
+      "iss.meta",
+      "off"
+     ],
+     [
+      "iss.only",
+      "orderbook"
+     ]
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497610080,
+   "connection": "c1",
+   "source": "rest",
+   "payload": {
+    "trades": {
+     "columns": [
+      "TRADENO",
+      "TRADETIME",
+      "BOARDID",
+      "SECID",
+      "PRICE",
+      "QUANTITY",
+      "VALUE",
+      "PERIOD",
+      "TRADETIME_GRP",
+      "SYSTIME",
+      "BUYSELL",
+      "DECIMALS",
+      "TRADINGSESSION"
+     ],
+     "data": [
+      [
+       13000005525,
+       "15:00:06",
+       "TQBR",
+       "SBER",
+       285.39,
+       33,
+       94178.7,
+       "N",
+       "15:00:00",
+       "2026-10-20 15:00:06",
+       "B",
+       2,
+       1
+      ],
+      [
+       13000006174,
+       "15:00:06",
+       "TQBR",
+       "SBER",
+       285.4,
+       16,
+       45664.0,
+       "N",
+       "15:00:00",
+       "2026-10-20 15:00:06",
+       "S",
+       2,
+       1
+      ],
+      [
+       13000006486,
+       "15:00:07",
+       "TQBR",
+       "SBER",
+       285.4,
+       38,
+       108452.0,
+       "N",
+       "15:00:00",
+       "2026-10-20 15:00:07",
+       "B",
+       2,
+       1
+      ]
+     ]
+    }
+   },
+   "request": {
+    "url": "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/SBER/trades.json",
+    "tag": "trades",
+    "native_symbol": "SBER",
+    "params": [
+     [
+      "iss.meta",
+      "off"
+     ],
+     [
+      "iss.only",
+      "trades"
+     ],
+     [
+      "next_trade",
+      "1"
+     ],
+     [
+      "limit",
+      "5000"
+     ],
+     [
+      "tradeno",
+      "13000004672"
+     ]
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497610140,
+   "connection": "c1",
+   "source": "rest",
+   "payload": {
+    "orderbook": {
+     "columns": [
+      "BOARDID",
+      "SECID",
+      "BUYSELL",
+      "PRICE",
+      "QUANTITY",
+      "SEQNUM",
+      "UPDATETIME",
+      "DECIMALS"
+     ],
+     "data": [
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.41,
+       522,
+       20261020150155,
+       "15:00:09",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.42,
+       704,
+       20261020150155,
+       "15:00:09",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.43,
+       547,
+       20261020150155,
+       "15:00:09",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.44,
+       213,
+       20261020150155,
+       "15:00:09",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.45,
+       129,
+       20261020150155,
+       "15:00:09",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.4,
+       632,
+       20261020150155,
+       "15:00:09",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.39,
+       688,
+       20261020150155,
+       "15:00:09",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.38,
+       284,
+       20261020150155,
+       "15:00:09",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.37,
+       329,
+       20261020150155,
+       "15:00:09",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.36,
+       746,
+       20261020150155,
+       "15:00:09",
+       2
+      ]
+     ]
+    }
+   },
+   "request": {
+    "url": "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/SBER/orderbook.json",
+    "tag": "orderbook",
+    "native_symbol": "SBER",
+    "params": [
+     [
+      "iss.meta",
+      "off"
+     ],
+     [
+      "iss.only",
+      "orderbook"
+     ]
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497615080,
+   "connection": "c1",
+   "source": "rest",
+   "payload": {
+    "trades": {
+     "columns": [
+      "TRADENO",
+      "TRADETIME",
+      "BOARDID",
+      "SECID",
+      "PRICE",
+      "QUANTITY",
+      "VALUE",
+      "PERIOD",
+      "TRADETIME_GRP",
+      "SYSTIME",
+      "BUYSELL",
+      "DECIMALS",
+      "TRADINGSESSION"
+     ],
+     "data": [
+      [
+       13000006875,
+       "15:00:11",
+       "TQBR",
+       "SBER",
+       285.4,
+       15,
+       42810.0,
+       "N",
+       "15:00:00",
+       "2026-10-20 15:00:11",
+       "B",
+       2,
+       1
+      ],
+      [
+       13000007487,
+       "15:00:11",
+       "TQBR",
+       "SBER",
+       285.39,
+       45,
+       128425.5,
+       "N",
+       "15:00:00",
+       "2026-10-20 15:00:11",
+       "B",
+       2,
+       1
+      ]
+     ]
+    }
+   },
+   "request": {
+    "url": "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/SBER/trades.json",
+    "tag": "trades",
+    "native_symbol": "SBER",
+    "params": [
+     [
+      "iss.meta",
+      "off"
+     ],
+     [
+      "iss.only",
+      "trades"
+     ],
+     [
+      "next_trade",
+      "1"
+     ],
+     [
+      "limit",
+      "5000"
+     ],
+     [
+      "tradeno",
+      "13000006486"
+     ]
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497615140,
+   "connection": "c1",
+   "source": "rest",
+   "payload": {
+    "orderbook": {
+     "columns": [
+      "BOARDID",
+      "SECID",
+      "BUYSELL",
+      "PRICE",
+      "QUANTITY",
+      "SEQNUM",
+      "UPDATETIME",
+      "DECIMALS"
+     ],
+     "data": [
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.41,
+       806,
+       20261020150189,
+       "15:00:14",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.42,
+       183,
+       20261020150189,
+       "15:00:14",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.43,
+       27,
+       20261020150189,
+       "15:00:14",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.44,
+       673,
+       20261020150189,
+       "15:00:14",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "S",
+       285.45,
+       350,
+       20261020150189,
+       "15:00:14",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.4,
+       581,
+       20261020150189,
+       "15:00:14",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.39,
+       697,
+       20261020150189,
+       "15:00:14",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.38,
+       645,
+       20261020150189,
+       "15:00:14",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.37,
+       643,
+       20261020150189,
+       "15:00:14",
+       2
+      ],
+      [
+       "TQBR",
+       "SBER",
+       "B",
+       285.36,
+       323,
+       20261020150189,
+       "15:00:14",
+       2
+      ]
+     ]
+    }
+   },
+   "request": {
+    "url": "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/SBER/orderbook.json",
+    "tag": "orderbook",
+    "native_symbol": "SBER",
+    "params": [
+     [
+      "iss.meta",
+      "off"
+     ],
+     [
+      "iss.only",
+      "orderbook"
+     ]
+    ]
+   }
+  }
+ ]
+}

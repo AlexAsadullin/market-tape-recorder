@@ -1,0 +1,2140 @@
+{
+ "venue": "okx",
+ "note": "OKX v5: books snapshot/update (seqId/prevSeqId), trades, mark-price, funding-rate, open-interest, liquidation-orders; c2 is a redundant connection that joins with a snapshot.",
+ "frames": [
+  {
+   "recv_ms": 1792497600015,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "snapshot",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.1",
+        "60",
+        "0",
+        "6"
+       ],
+       [
+        "67002.2",
+        "41",
+        "0",
+        "2"
+       ],
+       [
+        "67002.3",
+        "72",
+        "0",
+        "6"
+       ],
+       [
+        "67002.4",
+        "279",
+        "0",
+        "7"
+       ],
+       [
+        "67002.5",
+        "250",
+        "0",
+        "9"
+       ],
+       [
+        "67002.6",
+        "244",
+        "0",
+        "4"
+       ],
+       [
+        "67002.7",
+        "242",
+        "0",
+        "3"
+       ],
+       [
+        "67002.8",
+        "66",
+        "0",
+        "4"
+       ],
+       [
+        "67002.9",
+        "100",
+        "0",
+        "8"
+       ],
+       [
+        "67003.0",
+        "192",
+        "0",
+        "5"
+       ],
+       [
+        "67003.1",
+        "222",
+        "0",
+        "2"
+       ],
+       [
+        "67003.2",
+        "258",
+        "0",
+        "9"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.9",
+        "79",
+        "0",
+        "5"
+       ],
+       [
+        "67001.8",
+        "40",
+        "0",
+        "1"
+       ],
+       [
+        "67001.7",
+        "125",
+        "0",
+        "5"
+       ],
+       [
+        "67001.6",
+        "55",
+        "0",
+        "5"
+       ],
+       [
+        "67001.5",
+        "29",
+        "0",
+        "9"
+       ],
+       [
+        "67001.4",
+        "126",
+        "0",
+        "4"
+       ],
+       [
+        "67001.3",
+        "276",
+        "0",
+        "7"
+       ],
+       [
+        "67001.2",
+        "242",
+        "0",
+        "7"
+       ],
+       [
+        "67001.1",
+        "232",
+        "0",
+        "5"
+       ],
+       [
+        "67001.0",
+        "74",
+        "0",
+        "7"
+       ],
+       [
+        "67000.9",
+        "166",
+        "0",
+        "8"
+       ],
+       [
+        "67000.8",
+        "90",
+        "0",
+        "3"
+       ]
+      ],
+      "ts": "1792497600009",
+      "checksum": 0,
+      "prevSeqId": -1,
+      "seqId": 120000000
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497600025,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "mark-price",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "instType": "SWAP",
+      "markPx": "67002.3",
+      "ts": "1792497600020"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497600205,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.0",
+        "241",
+        "0",
+        "1"
+       ]
+      ],
+      "bids": [],
+      "ts": "1792497600200",
+      "checksum": 0,
+      "prevSeqId": 120000000,
+      "seqId": 120000001
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497600230,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000000",
+      "px": "67001.9",
+      "sz": "30",
+      "side": "sell",
+      "ts": "1792497600227",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497600405,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.2",
+        "299",
+        "0",
+        "6"
+       ],
+       [
+        "67002.3",
+        "136",
+        "0",
+        "9"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.1",
+        "0",
+        "0",
+        "4"
+       ]
+      ],
+      "ts": "1792497600400",
+      "checksum": 0,
+      "prevSeqId": 120000001,
+      "seqId": 120000004
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497600605,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67001.2",
+        "91",
+        "0",
+        "8"
+       ],
+       [
+        "67001.0",
+        "0",
+        "0",
+        "1"
+       ]
+      ],
+      "ts": "1792497600600",
+      "checksum": 0,
+      "prevSeqId": 120000004,
+      "seqId": 120000006
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497600630,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000006",
+      "px": "67001.9",
+      "sz": "3",
+      "side": "sell",
+      "ts": "1792497600627",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497600805,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.4",
+        "0",
+        "0",
+        "2"
+       ],
+       [
+        "67003.1",
+        "129",
+        "0",
+        "5"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.4",
+        "223",
+        "0",
+        "4"
+       ]
+      ],
+      "ts": "1792497600800",
+      "checksum": 0,
+      "prevSeqId": 120000006,
+      "seqId": 120000009
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497600860,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "funding-rate",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "instType": "SWAP",
+      "fundingRate": "0.000085",
+      "nextFundingRate": "",
+      "fundingTime": "1792512000000",
+      "ts": "1792497600855"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497600865,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "open-interest",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "instType": "SWAP",
+      "oi": "2500000",
+      "oiCcy": "25003",
+      "oiUsd": "1675201000",
+      "ts": "1792497600861"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497601005,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.7",
+        "0",
+        "0",
+        "3"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.8",
+        "115",
+        "0",
+        "6"
+       ]
+      ],
+      "ts": "1792497601000",
+      "checksum": 0,
+      "prevSeqId": 120000009,
+      "seqId": 120000011
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497601030,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000012",
+      "px": "67001.9",
+      "sz": "24",
+      "side": "sell",
+      "ts": "1792497601027",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497601205,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67001.7",
+        "133",
+        "0",
+        "8"
+       ],
+       [
+        "67000.8",
+        "0",
+        "0",
+        "4"
+       ],
+       [
+        "67001.3",
+        "186",
+        "0",
+        "6"
+       ]
+      ],
+      "ts": "1792497601200",
+      "checksum": 0,
+      "prevSeqId": 120000011,
+      "seqId": 120000014
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497601405,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67001.5",
+        "234",
+        "0",
+        "4"
+       ]
+      ],
+      "ts": "1792497601400",
+      "checksum": 0,
+      "prevSeqId": 120000014,
+      "seqId": 120000016
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497601430,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000018",
+      "px": "67001.9",
+      "sz": "31",
+      "side": "buy",
+      "ts": "1792497601427",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497601605,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.1",
+        "73",
+        "0",
+        "4"
+       ]
+      ],
+      "bids": [],
+      "ts": "1792497601600",
+      "checksum": 0,
+      "prevSeqId": 120000016,
+      "seqId": 120000018
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497601805,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.9",
+        "64",
+        "0",
+        "6"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.7",
+        "162",
+        "0",
+        "2"
+       ],
+       [
+        "67001.6",
+        "51",
+        "0",
+        "7"
+       ]
+      ],
+      "ts": "1792497601800",
+      "checksum": 0,
+      "prevSeqId": 120000018,
+      "seqId": 120000019
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497601830,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000024",
+      "px": "67001.9",
+      "sz": "3",
+      "side": "sell",
+      "ts": "1792497601827",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497602005,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67001.4",
+        "271",
+        "0",
+        "6"
+       ],
+       [
+        "67001.5",
+        "242",
+        "0",
+        "7"
+       ]
+      ],
+      "ts": "1792497602000",
+      "checksum": 0,
+      "prevSeqId": 120000019,
+      "seqId": 120000022
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497602205,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.1",
+        "259",
+        "0",
+        "3"
+       ],
+       [
+        "67003.2",
+        "66",
+        "0",
+        "5"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.5",
+        "108",
+        "0",
+        "1"
+       ]
+      ],
+      "ts": "1792497602200",
+      "checksum": 0,
+      "prevSeqId": 120000022,
+      "seqId": 120000024
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497602230,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000030",
+      "px": "67001.9",
+      "sz": "11",
+      "side": "sell",
+      "ts": "1792497602227",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497602405,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.8",
+        "73",
+        "0",
+        "4"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.3",
+        "0",
+        "0",
+        "9"
+       ],
+       [
+        "67001.6",
+        "44",
+        "0",
+        "1"
+       ]
+      ],
+      "ts": "1792497602400",
+      "checksum": 0,
+      "prevSeqId": 120000024,
+      "seqId": 120000026
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497602605,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67001.7",
+        "247",
+        "0",
+        "8"
+       ]
+      ],
+      "ts": "1792497602600",
+      "checksum": 0,
+      "prevSeqId": 120000026,
+      "seqId": 120000029
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497602630,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000036",
+      "px": "67001.9",
+      "sz": "34",
+      "side": "sell",
+      "ts": "1792497602627",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497602805,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67001.2",
+        "0",
+        "0",
+        "9"
+       ]
+      ],
+      "ts": "1792497602800",
+      "checksum": 0,
+      "prevSeqId": 120000029,
+      "seqId": 120000031
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497603005,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67000.9",
+        "0",
+        "0",
+        "9"
+       ],
+       [
+        "67001.6",
+        "250",
+        "0",
+        "8"
+       ]
+      ],
+      "ts": "1792497603000",
+      "checksum": 0,
+      "prevSeqId": 120000031,
+      "seqId": 120000032
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497603030,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000042",
+      "px": "67001.9",
+      "sz": "25",
+      "side": "buy",
+      "ts": "1792497603027",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497603080,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "liquidation-orders",
+     "instType": "SWAP"
+    },
+    "data": [
+     {
+      "details": [
+       {
+        "bkLoss": "0",
+        "bkPx": "66950.2",
+        "ccy": "",
+        "posSide": "long",
+        "side": "sell",
+        "sz": "12",
+        "ts": "1792497603075"
+       }
+      ],
+      "instFamily": "BTC-USDT",
+      "instId": "BTC-USDT-SWAP",
+      "instType": "SWAP",
+      "uly": "BTC-USDT"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497603205,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.9",
+        "0",
+        "0",
+        "6"
+       ],
+       [
+        "67002.1",
+        "0",
+        "0",
+        "9"
+       ]
+      ],
+      "bids": [],
+      "ts": "1792497603200",
+      "checksum": 0,
+      "prevSeqId": 120000032,
+      "seqId": 120000035
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497603260,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "funding-rate",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "instType": "SWAP",
+      "fundingRate": "0.000085",
+      "nextFundingRate": "",
+      "fundingTime": "1792512000000",
+      "ts": "1792497603255"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497603265,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "open-interest",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "instType": "SWAP",
+      "oi": "2500000",
+      "oiCcy": "25015",
+      "oiUsd": "1676005000",
+      "ts": "1792497603261"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497603405,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67003.1",
+        "29",
+        "0",
+        "3"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.7",
+        "132",
+        "0",
+        "6"
+       ]
+      ],
+      "ts": "1792497603400",
+      "checksum": 0,
+      "prevSeqId": 120000035,
+      "seqId": 120000038
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497603430,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000048",
+      "px": "67001.9",
+      "sz": "11",
+      "side": "buy",
+      "ts": "1792497603427",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497603605,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67001.6",
+        "85",
+        "0",
+        "8"
+       ],
+       [
+        "67001.4",
+        "198",
+        "0",
+        "9"
+       ],
+       [
+        "67001.7",
+        "238",
+        "0",
+        "2"
+       ]
+      ],
+      "ts": "1792497603600",
+      "checksum": 0,
+      "prevSeqId": 120000038,
+      "seqId": 120000041
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497603805,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67001.6",
+        "114",
+        "0",
+        "5"
+       ],
+       [
+        "67001.9",
+        "10",
+        "0",
+        "9"
+       ],
+       [
+        "67001.6",
+        "168",
+        "0",
+        "8"
+       ]
+      ],
+      "ts": "1792497603800",
+      "checksum": 0,
+      "prevSeqId": 120000041,
+      "seqId": 120000043
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497603830,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000054",
+      "px": "67001.9",
+      "sz": "40",
+      "side": "sell",
+      "ts": "1792497603827",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497604005,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.2",
+        "0",
+        "0",
+        "3"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.4",
+        "115",
+        "0",
+        "3"
+       ]
+      ],
+      "ts": "1792497604000",
+      "checksum": 0,
+      "prevSeqId": 120000043,
+      "seqId": 120000046
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497604205,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67003.0",
+        "0",
+        "0",
+        "6"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.7",
+        "106",
+        "0",
+        "3"
+       ]
+      ],
+      "ts": "1792497604200",
+      "checksum": 0,
+      "prevSeqId": 120000046,
+      "seqId": 120000048
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497604230,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000060",
+      "px": "67001.9",
+      "sz": "20",
+      "side": "buy",
+      "ts": "1792497604227",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497604405,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67001.4",
+        "242",
+        "0",
+        "4"
+       ],
+       [
+        "67001.4",
+        "296",
+        "0",
+        "5"
+       ],
+       [
+        "67001.4",
+        "60",
+        "0",
+        "7"
+       ]
+      ],
+      "ts": "1792497604400",
+      "checksum": 0,
+      "prevSeqId": 120000048,
+      "seqId": 120000050
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497604605,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.5",
+        "0",
+        "0",
+        "5"
+       ],
+       [
+        "67002.8",
+        "157",
+        "0",
+        "8"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.9",
+        "74",
+        "0",
+        "7"
+       ]
+      ],
+      "ts": "1792497604600",
+      "checksum": 0,
+      "prevSeqId": 120000050,
+      "seqId": 120000052
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497604630,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000066",
+      "px": "67001.9",
+      "sz": "38",
+      "side": "buy",
+      "ts": "1792497604627",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497604805,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.4",
+        "191",
+        "0",
+        "9"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.7",
+        "211",
+        "0",
+        "2"
+       ]
+      ],
+      "ts": "1792497604800",
+      "checksum": 0,
+      "prevSeqId": 120000052,
+      "seqId": 120000053
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497605005,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.4",
+        "274",
+        "0",
+        "2"
+       ],
+       [
+        "67003.1",
+        "279",
+        "0",
+        "3"
+       ]
+      ],
+      "bids": [],
+      "ts": "1792497605000",
+      "checksum": 0,
+      "prevSeqId": 120000053,
+      "seqId": 120000056
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497605007,
+   "connection": "c2",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "snapshot",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.0",
+        "241",
+        "0",
+        "5"
+       ],
+       [
+        "67002.3",
+        "136",
+        "0",
+        "3"
+       ],
+       [
+        "67002.4",
+        "274",
+        "0",
+        "1"
+       ],
+       [
+        "67002.6",
+        "244",
+        "0",
+        "3"
+       ],
+       [
+        "67002.8",
+        "157",
+        "0",
+        "7"
+       ],
+       [
+        "67003.1",
+        "279",
+        "0",
+        "9"
+       ],
+       [
+        "67003.2",
+        "66",
+        "0",
+        "9"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.9",
+        "74",
+        "0",
+        "5"
+       ],
+       [
+        "67001.8",
+        "115",
+        "0",
+        "1"
+       ],
+       [
+        "67001.7",
+        "211",
+        "0",
+        "9"
+       ],
+       [
+        "67001.6",
+        "168",
+        "0",
+        "4"
+       ],
+       [
+        "67001.5",
+        "108",
+        "0",
+        "3"
+       ],
+       [
+        "67001.4",
+        "60",
+        "0",
+        "2"
+       ]
+      ],
+      "ts": "1792497605000",
+      "checksum": 0,
+      "prevSeqId": -1,
+      "seqId": 120000056
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497605030,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000072",
+      "px": "67001.9",
+      "sz": "16",
+      "side": "buy",
+      "ts": "1792497605027",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497605205,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67001.4",
+        "45",
+        "0",
+        "5"
+       ]
+      ],
+      "ts": "1792497605200",
+      "checksum": 0,
+      "prevSeqId": 120000056,
+      "seqId": 120000057
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497605405,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67003.1",
+        "265",
+        "0",
+        "9"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.9",
+        "130",
+        "0",
+        "7"
+       ],
+       [
+        "67001.9",
+        "34",
+        "0",
+        "3"
+       ]
+      ],
+      "ts": "1792497605400",
+      "checksum": 0,
+      "prevSeqId": 120000057,
+      "seqId": 120000058
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497605430,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000078",
+      "px": "67001.9",
+      "sz": "14",
+      "side": "sell",
+      "ts": "1792497605427",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497605605,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.8",
+        "208",
+        "0",
+        "6"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.7",
+        "264",
+        "0",
+        "3"
+       ]
+      ],
+      "ts": "1792497605600",
+      "checksum": 0,
+      "prevSeqId": 120000058,
+      "seqId": 120000060
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497605660,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "funding-rate",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "instType": "SWAP",
+      "fundingRate": "0.000085",
+      "nextFundingRate": "",
+      "fundingTime": "1792512000000",
+      "ts": "1792497605655"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497605665,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "open-interest",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "instType": "SWAP",
+      "oi": "2500000",
+      "oiCcy": "25027",
+      "oiUsd": "1676809000",
+      "ts": "1792497605661"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497605805,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67001.8",
+        "91",
+        "0",
+        "1"
+       ],
+       [
+        "67001.7",
+        "35",
+        "0",
+        "4"
+       ]
+      ],
+      "ts": "1792497605800",
+      "checksum": 0,
+      "prevSeqId": 120000060,
+      "seqId": 120000061
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497605830,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000084",
+      "px": "67001.9",
+      "sz": "15",
+      "side": "buy",
+      "ts": "1792497605827",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497606005,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.2",
+        "252",
+        "0",
+        "4"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.7",
+        "299",
+        "0",
+        "2"
+       ]
+      ],
+      "ts": "1792497606000",
+      "checksum": 0,
+      "prevSeqId": 120000061,
+      "seqId": 120000064
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497606205,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.4",
+        "184",
+        "0",
+        "5"
+       ]
+      ],
+      "bids": [
+       [
+        "67001.5",
+        "84",
+        "0",
+        "8"
+       ]
+      ],
+      "ts": "1792497606200",
+      "checksum": 0,
+      "prevSeqId": 120000064,
+      "seqId": 120000067
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497606230,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000090",
+      "px": "67001.9",
+      "sz": "22",
+      "side": "buy",
+      "ts": "1792497606227",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497606405,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.0",
+        "185",
+        "0",
+        "8"
+       ]
+      ],
+      "bids": [],
+      "ts": "1792497606400",
+      "checksum": 0,
+      "prevSeqId": 120000067,
+      "seqId": 120000070
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497606605,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67001.8",
+        "154",
+        "0",
+        "3"
+       ],
+       [
+        "67001.8",
+        "108",
+        "0",
+        "5"
+       ]
+      ],
+      "ts": "1792497606600",
+      "checksum": 0,
+      "prevSeqId": 120000070,
+      "seqId": 120000073
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497606630,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000096",
+      "px": "67001.9",
+      "sz": "8",
+      "side": "buy",
+      "ts": "1792497606627",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497606805,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [],
+      "bids": [
+       [
+        "67001.8",
+        "287",
+        "0",
+        "1"
+       ]
+      ],
+      "ts": "1792497606800",
+      "checksum": 0,
+      "prevSeqId": 120000073,
+      "seqId": 120000076
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497607005,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67002.4",
+        "114",
+        "0",
+        "6"
+       ]
+      ],
+      "bids": [],
+      "ts": "1792497607000",
+      "checksum": 0,
+      "prevSeqId": 120000076,
+      "seqId": 120000079
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497607030,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "trades",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "data": [
+     {
+      "instId": "BTC-USDT-SWAP",
+      "tradeId": "880000102",
+      "px": "67001.9",
+      "sz": "20",
+      "side": "sell",
+      "ts": "1792497607027",
+      "count": "2"
+     }
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497607205,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "arg": {
+     "channel": "books",
+     "instId": "BTC-USDT-SWAP"
+    },
+    "action": "update",
+    "data": [
+     {
+      "asks": [
+       [
+        "67003.1",
+        "0",
+        "0",
+        "7"
+       ],
+       [
+        "67003.2",
+        "158",
+        "0",
+        "6"
+       ],
+       [
+        "67002.3",
+        "239",
+        "0",
+        "3"
+       ]
+      ],
+      "bids": [],
+      "ts": "1792497607200",
+      "checksum": 0,
+      "prevSeqId": 120000079,
+      "seqId": 120000082
+     }
+    ]
+   }
+  }
+ ]
+}

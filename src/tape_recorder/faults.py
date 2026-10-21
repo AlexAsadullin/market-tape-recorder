@@ -4,7 +4,7 @@ Each fault targets the ``index``-th frame of one venue's stream:
 
 - ``drop``: the frame is lost (a sequence gap for book deltas).
 - ``duplicate``: a redundant connection delivers a copy ``delay_ms`` later.
-- ``reorder``: the frame swaps payloads with the next one, so it arrives out of order.
+- ``reorder``: the frame is delayed past the next one, so it arrives out of order.
 - ``cross``: the first bid of the frame is moved above the best ask (a corrupted, crossed book).
 - ``resubscribe``: the connection is replaced; frames in the next ``gap_ms`` are never received.
 """
@@ -83,10 +83,8 @@ def apply_fault(frames: list[Frame], fault: FaultSpec) -> list[Frame]:
             if i + 1 >= len(out):
                 raise IndexError("reorder needs a following frame")
             nxt = out[i + 1]
-            out[i] = target.with_(payload=nxt.payload, request=nxt.request, source=nxt.source)
-            out[i + 1] = nxt.with_(
-                payload=target.payload, request=target.request, source=target.source
-            )
+            # The frame is delayed past its successor: it arrives second, with the later time.
+            out[i], out[i + 1] = nxt, target.with_(ts_local=nxt.ts_local + 1)
         case "cross":
             out[i] = target.with_(payload=_cross_payload(target.payload))
         case "resubscribe":

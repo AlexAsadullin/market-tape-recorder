@@ -112,7 +112,9 @@ def merge_partition(
     if unkeyed.num_rows:
         primary = primary_region or str(a.column("capture_region")[0] if a.num_rows else "")
         unkeyed = unkeyed.filter(pc.equal(unkeyed.column("capture_region"), primary))
-        kept = pa.concat_tables([kept.select(unkeyed.column_names), unkeyed])
+        kept = pa.concat_tables(
+            [kept.select(unkeyed.column_names), unkeyed], promote_options="permissive"
+        )
     kept = kept.sort_by([("ts_local", "ascending"), (_ROW, "ascending")])
     return kept.select(SCHEMAS[channel].names).cast(SCHEMAS[channel]), arrivals
 

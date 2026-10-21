@@ -1,0 +1,1635 @@
+{
+ "venue": "binance",
+ "note": "Binance spot: REST depth snapshot, depthUpdate (U/u), trade; a REST re-snapshot at update 25.",
+ "frames": [
+  {
+   "recv_ms": 1792497600005,
+   "connection": "c1",
+   "source": "rest",
+   "payload": {
+    "lastUpdateId": 41000,
+    "bids": [
+     [
+      "66999.90",
+      "0.490"
+     ],
+     [
+      "66999.80",
+      "2.558"
+     ],
+     [
+      "66999.70",
+      "2.315"
+     ],
+     [
+      "66999.60",
+      "0.840"
+     ],
+     [
+      "66999.50",
+      "1.537"
+     ],
+     [
+      "66999.40",
+      "1.404"
+     ],
+     [
+      "66999.30",
+      "1.990"
+     ],
+     [
+      "66999.20",
+      "2.387"
+     ],
+     [
+      "66999.10",
+      "0.372"
+     ],
+     [
+      "66999.00",
+      "0.182"
+     ],
+     [
+      "66998.90",
+      "2.524"
+     ],
+     [
+      "66998.80",
+      "1.355"
+     ]
+    ],
+    "asks": [
+     [
+      "67000.10",
+      "2.311"
+     ],
+     [
+      "67000.20",
+      "0.106"
+     ],
+     [
+      "67000.30",
+      "1.392"
+     ],
+     [
+      "67000.40",
+      "2.192"
+     ],
+     [
+      "67000.50",
+      "0.763"
+     ],
+     [
+      "67000.60",
+      "2.841"
+     ],
+     [
+      "67000.70",
+      "2.714"
+     ],
+     [
+      "67000.80",
+      "0.189"
+     ],
+     [
+      "67000.90",
+      "0.174"
+     ],
+     [
+      "67001.00",
+      "1.670"
+     ],
+     [
+      "67001.10",
+      "2.824"
+     ],
+     [
+      "67001.20",
+      "1.205"
+     ]
+    ]
+   },
+   "request": {
+    "url": "https://api.binance.com/api/v3/depth",
+    "tag": "depth",
+    "native_symbol": "BTCUSDT",
+    "params": [
+     [
+      "symbol",
+      "BTCUSDT"
+     ],
+     [
+      "limit",
+      "1000"
+     ]
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497600103,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497600100,
+     "s": "BTCUSDT",
+     "U": 40999,
+     "u": 41002,
+     "b": [],
+     "a": [
+      [
+       "67000.90",
+       "0.743"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497600140,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497600137,
+     "s": "BTCUSDT",
+     "t": 900001,
+     "p": "67000.00",
+     "q": "0.24841",
+     "T": 1792497600136,
+     "m": true,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497600203,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497600200,
+     "s": "BTCUSDT",
+     "U": 41003,
+     "u": 41007,
+     "b": [],
+     "a": [
+      [
+       "67000.40",
+       "0.000"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497600303,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497600300,
+     "s": "BTCUSDT",
+     "U": 41008,
+     "u": 41011,
+     "b": [
+      [
+       "67000.00",
+       "2.757"
+      ],
+      [
+       "66999.90",
+       "0.000"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497600340,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497600337,
+     "s": "BTCUSDT",
+     "t": 900002,
+     "p": "67000.05",
+     "q": "0.16701",
+     "T": 1792497600336,
+     "m": true,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497600403,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497600400,
+     "s": "BTCUSDT",
+     "U": 41012,
+     "u": 41016,
+     "b": [],
+     "a": [
+      [
+       "67001.20",
+       "0.651"
+      ],
+      [
+       "67000.90",
+       "2.554"
+      ],
+      [
+       "67000.10",
+       "1.493"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497600503,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497600500,
+     "s": "BTCUSDT",
+     "U": 41017,
+     "u": 41020,
+     "b": [
+      [
+       "66999.70",
+       "0.351"
+      ],
+      [
+       "66999.60",
+       "2.536"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497600540,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497600537,
+     "s": "BTCUSDT",
+     "t": 900003,
+     "p": "67000.05",
+     "q": "0.01576",
+     "T": 1792497600536,
+     "m": true,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497600603,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497600600,
+     "s": "BTCUSDT",
+     "U": 41021,
+     "u": 41025,
+     "b": [],
+     "a": [
+      [
+       "67001.10",
+       "1.820"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497600703,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497600700,
+     "s": "BTCUSDT",
+     "U": 41026,
+     "u": 41029,
+     "b": [
+      [
+       "66999.10",
+       "0.000"
+      ],
+      [
+       "66999.70",
+       "2.768"
+      ],
+      [
+       "66999.70",
+       "2.862"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497600740,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497600737,
+     "s": "BTCUSDT",
+     "t": 900004,
+     "p": "67000.05",
+     "q": "0.13537",
+     "T": 1792497600736,
+     "m": true,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497600803,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497600800,
+     "s": "BTCUSDT",
+     "U": 41030,
+     "u": 41034,
+     "b": [
+      [
+       "66999.50",
+       "2.447"
+      ],
+      [
+       "66999.90",
+       "1.495"
+      ]
+     ],
+     "a": [
+      [
+       "67000.50",
+       "2.829"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497600903,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497600900,
+     "s": "BTCUSDT",
+     "U": 41035,
+     "u": 41037,
+     "b": [],
+     "a": [
+      [
+       "67000.20",
+       "1.662"
+      ],
+      [
+       "67000.10",
+       "2.433"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497600940,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497600937,
+     "s": "BTCUSDT",
+     "t": 900005,
+     "p": "67000.05",
+     "q": "0.09121",
+     "T": 1792497600936,
+     "m": false,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601003,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497601000,
+     "s": "BTCUSDT",
+     "U": 41038,
+     "u": 41039,
+     "b": [],
+     "a": [
+      [
+       "67001.20",
+       "0.000"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601103,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497601100,
+     "s": "BTCUSDT",
+     "U": 41040,
+     "u": 41041,
+     "b": [
+      [
+       "66999.30",
+       "0.824"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601140,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497601137,
+     "s": "BTCUSDT",
+     "t": 900006,
+     "p": "67000.05",
+     "q": "0.09312",
+     "T": 1792497601136,
+     "m": false,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601203,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497601200,
+     "s": "BTCUSDT",
+     "U": 41042,
+     "u": 41046,
+     "b": [
+      [
+       "66999.30",
+       "0.000"
+      ],
+      [
+       "67000.00",
+       "2.164"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601303,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497601300,
+     "s": "BTCUSDT",
+     "U": 41047,
+     "u": 41051,
+     "b": [],
+     "a": [
+      [
+       "67000.20",
+       "0.169"
+      ],
+      [
+       "67000.30",
+       "0.849"
+      ],
+      [
+       "67001.00",
+       "2.933"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601340,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497601337,
+     "s": "BTCUSDT",
+     "t": 900007,
+     "p": "67000.05",
+     "q": "0.01139",
+     "T": 1792497601336,
+     "m": false,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601403,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497601400,
+     "s": "BTCUSDT",
+     "U": 41052,
+     "u": 41056,
+     "b": [],
+     "a": [
+      [
+       "67000.30",
+       "0.000"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601503,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497601500,
+     "s": "BTCUSDT",
+     "U": 41057,
+     "u": 41061,
+     "b": [],
+     "a": [
+      [
+       "67000.60",
+       "2.933"
+      ],
+      [
+       "67000.10",
+       "0.000"
+      ],
+      [
+       "67000.90",
+       "2.013"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601540,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497601537,
+     "s": "BTCUSDT",
+     "t": 900008,
+     "p": "67000.10",
+     "q": "0.15000",
+     "T": 1792497601536,
+     "m": true,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601603,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497601600,
+     "s": "BTCUSDT",
+     "U": 41062,
+     "u": 41065,
+     "b": [
+      [
+       "66999.90",
+       "1.000"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601703,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497601700,
+     "s": "BTCUSDT",
+     "U": 41066,
+     "u": 41070,
+     "b": [
+      [
+       "66999.70",
+       "0.478"
+      ],
+      [
+       "66999.20",
+       "2.890"
+      ]
+     ],
+     "a": [
+      [
+       "67000.20",
+       "0.000"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601740,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497601737,
+     "s": "BTCUSDT",
+     "t": 900009,
+     "p": "67000.25",
+     "q": "0.05041",
+     "T": 1792497601736,
+     "m": true,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601803,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497601800,
+     "s": "BTCUSDT",
+     "U": 41071,
+     "u": 41072,
+     "b": [],
+     "a": [
+      [
+       "67000.80",
+       "0.403"
+      ],
+      [
+       "67000.40",
+       "1.549"
+      ],
+      [
+       "67001.00",
+       "2.709"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601903,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497601900,
+     "s": "BTCUSDT",
+     "U": 41073,
+     "u": 41076,
+     "b": [
+      [
+       "66999.90",
+       "2.370"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497601940,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497601937,
+     "s": "BTCUSDT",
+     "t": 900010,
+     "p": "67000.20",
+     "q": "0.13400",
+     "T": 1792497601936,
+     "m": true,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602003,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497602000,
+     "s": "BTCUSDT",
+     "U": 41077,
+     "u": 41081,
+     "b": [],
+     "a": [
+      [
+       "67000.90",
+       "2.752"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602103,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497602100,
+     "s": "BTCUSDT",
+     "U": 41082,
+     "u": 41085,
+     "b": [
+      [
+       "66998.80",
+       "0.000"
+      ],
+      [
+       "66999.20",
+       "0.000"
+      ],
+      [
+       "67000.10",
+       "1.063"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602140,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497602137,
+     "s": "BTCUSDT",
+     "t": 900011,
+     "p": "67000.25",
+     "q": "0.17080",
+     "T": 1792497602136,
+     "m": true,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602203,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497602200,
+     "s": "BTCUSDT",
+     "U": 41086,
+     "u": 41089,
+     "b": [
+      [
+       "67000.10",
+       "2.361"
+      ]
+     ],
+     "a": [
+      [
+       "67000.50",
+       "0.000"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602303,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497602300,
+     "s": "BTCUSDT",
+     "U": 41090,
+     "u": 41092,
+     "b": [],
+     "a": [
+      [
+       "67001.10",
+       "0.000"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602340,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497602337,
+     "s": "BTCUSDT",
+     "t": 900012,
+     "p": "67000.25",
+     "q": "0.17111",
+     "T": 1792497602336,
+     "m": false,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602403,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497602400,
+     "s": "BTCUSDT",
+     "U": 41093,
+     "u": 41094,
+     "b": [
+      [
+       "66999.70",
+       "2.683"
+      ],
+      [
+       "66999.60",
+       "0.412"
+      ]
+     ],
+     "a": [
+      [
+       "67000.30",
+       "1.696"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602503,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497602500,
+     "s": "BTCUSDT",
+     "U": 41095,
+     "u": 41099,
+     "b": [
+      [
+       "66998.90",
+       "0.366"
+      ],
+      [
+       "66998.90",
+       "0.645"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602540,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497602537,
+     "s": "BTCUSDT",
+     "t": 900013,
+     "p": "67000.20",
+     "q": "0.22600",
+     "T": 1792497602536,
+     "m": true,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602603,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497602600,
+     "s": "BTCUSDT",
+     "U": 41100,
+     "u": 41101,
+     "b": [
+      [
+       "66999.00",
+       "0.000"
+      ]
+     ],
+     "a": [
+      [
+       "67000.70",
+       "2.439"
+      ],
+      [
+       "67000.90",
+       "1.483"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602660,
+   "connection": "c1",
+   "source": "rest",
+   "payload": {
+    "lastUpdateId": 41101,
+    "bids": [
+     [
+      "67000.10",
+      "2.361"
+     ],
+     [
+      "67000.00",
+      "2.164"
+     ],
+     [
+      "66999.90",
+      "2.370"
+     ],
+     [
+      "66999.80",
+      "2.558"
+     ],
+     [
+      "66999.70",
+      "2.683"
+     ],
+     [
+      "66999.60",
+      "0.412"
+     ],
+     [
+      "66999.50",
+      "2.447"
+     ],
+     [
+      "66999.40",
+      "1.404"
+     ],
+     [
+      "66998.90",
+      "0.645"
+     ]
+    ],
+    "asks": [
+     [
+      "67000.30",
+      "1.696"
+     ],
+     [
+      "67000.40",
+      "1.549"
+     ],
+     [
+      "67000.60",
+      "2.933"
+     ],
+     [
+      "67000.70",
+      "2.439"
+     ],
+     [
+      "67000.80",
+      "0.403"
+     ],
+     [
+      "67000.90",
+      "1.483"
+     ],
+     [
+      "67001.00",
+      "2.709"
+     ]
+    ]
+   },
+   "request": {
+    "url": "https://api.binance.com/api/v3/depth",
+    "tag": "depth",
+    "native_symbol": "BTCUSDT",
+    "params": [
+     [
+      "symbol",
+      "BTCUSDT"
+     ],
+     [
+      "limit",
+      "1000"
+     ]
+    ]
+   }
+  },
+  {
+   "recv_ms": 1792497602703,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497602700,
+     "s": "BTCUSDT",
+     "U": 41102,
+     "u": 41105,
+     "b": [],
+     "a": [
+      [
+       "67000.30",
+       "0.000"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602740,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497602737,
+     "s": "BTCUSDT",
+     "t": 900014,
+     "p": "67000.25",
+     "q": "0.16081",
+     "T": 1792497602736,
+     "m": false,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602803,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497602800,
+     "s": "BTCUSDT",
+     "U": 41106,
+     "u": 41108,
+     "b": [],
+     "a": [
+      [
+       "67000.30",
+       "0.286"
+      ],
+      [
+       "67000.70",
+       "0.423"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602903,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497602900,
+     "s": "BTCUSDT",
+     "U": 41109,
+     "u": 41113,
+     "b": [
+      [
+       "66999.90",
+       "1.145"
+      ]
+     ],
+     "a": [
+      [
+       "67000.60",
+       "0.631"
+      ],
+      [
+       "67001.00",
+       "0.000"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497602940,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497602937,
+     "s": "BTCUSDT",
+     "t": 900015,
+     "p": "67000.20",
+     "q": "0.28760",
+     "T": 1792497602936,
+     "m": true,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603003,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497603000,
+     "s": "BTCUSDT",
+     "U": 41114,
+     "u": 41117,
+     "b": [
+      [
+       "66999.80",
+       "0.219"
+      ],
+      [
+       "66999.60",
+       "2.691"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603103,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497603100,
+     "s": "BTCUSDT",
+     "U": 41118,
+     "u": 41119,
+     "b": [],
+     "a": [
+      [
+       "67000.80",
+       "1.779"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603140,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497603137,
+     "s": "BTCUSDT",
+     "t": 900016,
+     "p": "67000.20",
+     "q": "0.01117",
+     "T": 1792497603136,
+     "m": true,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603203,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497603200,
+     "s": "BTCUSDT",
+     "U": 41120,
+     "u": 41121,
+     "b": [],
+     "a": [
+      [
+       "67000.80",
+       "2.616"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603303,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497603300,
+     "s": "BTCUSDT",
+     "U": 41122,
+     "u": 41124,
+     "b": [
+      [
+       "66999.80",
+       "1.530"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603340,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497603337,
+     "s": "BTCUSDT",
+     "t": 900017,
+     "p": "67000.20",
+     "q": "0.38910",
+     "T": 1792497603336,
+     "m": true,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603403,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497603400,
+     "s": "BTCUSDT",
+     "U": 41125,
+     "u": 41128,
+     "b": [
+      [
+       "66999.50",
+       "0.621"
+      ],
+      [
+       "66999.80",
+       "0.986"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603503,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497603500,
+     "s": "BTCUSDT",
+     "U": 41129,
+     "u": 41132,
+     "b": [
+      [
+       "66998.90",
+       "0.000"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603540,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497603537,
+     "s": "BTCUSDT",
+     "t": 900018,
+     "p": "67000.20",
+     "q": "0.31214",
+     "T": 1792497603536,
+     "m": false,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603603,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497603600,
+     "s": "BTCUSDT",
+     "U": 41133,
+     "u": 41137,
+     "b": [
+      [
+       "67000.00",
+       "0.000"
+      ],
+      [
+       "67000.10",
+       "0.000"
+      ],
+      [
+       "67000.00",
+       "0.287"
+      ]
+     ],
+     "a": []
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603703,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497603700,
+     "s": "BTCUSDT",
+     "U": 41138,
+     "u": 41139,
+     "b": [],
+     "a": [
+      [
+       "67000.80",
+       "1.415"
+      ],
+      [
+       "67000.40",
+       "0.848"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603740,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497603737,
+     "s": "BTCUSDT",
+     "t": 900019,
+     "p": "67000.15",
+     "q": "0.46639",
+     "T": 1792497603736,
+     "m": false,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603803,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497603800,
+     "s": "BTCUSDT",
+     "U": 41140,
+     "u": 41141,
+     "b": [
+      [
+       "66999.60",
+       "0.000"
+      ],
+      [
+       "66999.50",
+       "0.851"
+      ]
+     ],
+     "a": [
+      [
+       "67000.20",
+       "1.263"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603903,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497603900,
+     "s": "BTCUSDT",
+     "U": 41142,
+     "u": 41145,
+     "b": [],
+     "a": [
+      [
+       "67000.70",
+       "0.000"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497603940,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@trade",
+    "data": {
+     "e": "trade",
+     "E": 1792497603937,
+     "s": "BTCUSDT",
+     "t": 900020,
+     "p": "67000.10",
+     "q": "0.32477",
+     "T": 1792497603936,
+     "m": false,
+     "M": true
+    }
+   }
+  },
+  {
+   "recv_ms": 1792497604003,
+   "connection": "c1",
+   "source": "ws",
+   "payload": {
+    "stream": "btcusdt@depth@100ms",
+    "data": {
+     "e": "depthUpdate",
+     "E": 1792497604000,
+     "s": "BTCUSDT",
+     "U": 41146,
+     "u": 41149,
+     "b": [
+      [
+       "66999.60",
+       "2.092"
+      ],
+      [
+       "66999.60",
+       "1.725"
+      ]
+     ],
+     "a": []
+    }
+   }
+  }
+ ]
+}

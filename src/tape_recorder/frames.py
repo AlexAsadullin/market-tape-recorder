@@ -83,7 +83,8 @@ def frame_from_json(venue: str, data: dict[str, Any]) -> Frame:
     if "ts_local" in data:
         ts_local = int(data["ts_local"])
     else:
-        ts_local = round(float(data["recv_ms"]) * NS_PER_MS)
+        recv = data["recv_ms"]
+        ts_local = recv * NS_PER_MS if isinstance(recv, int) else round(float(recv) * NS_PER_MS)
     request = RestRequest.from_json(data["request"]) if data.get("request") else None
     source: FrameSource = "rest" if data.get("source") == "rest" else "ws"
     return Frame(

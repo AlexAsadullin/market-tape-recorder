@@ -108,6 +108,7 @@ class WsVenueSession:
         self.snapshot_lock = asyncio.Lock()
         self.rotations = 0
         self.resyncs = 0
+        self.last_connection_id = ""
 
     async def run(self, stop: asyncio.Event) -> None:
         slots = [
@@ -143,6 +144,7 @@ class WsVenueSession:
                 continue
             backoff.reset()
             conn = _Conn(conn_id, ws, self.clock())
+            self.last_connection_id = conn_id
             conn.task = asyncio.create_task(self._read(conn))
             if self.monitor is not None:
                 self.monitor.connection_opened(self.adapter.venue, conn_id)
@@ -212,9 +214,8 @@ class WsVenueSession:
                 except TRANSPORT_ERRORS as exc:
                     log.warning("snapshot_failed", venue=self.adapter.venue, error=repr(exc))
                     continue
-                frame = Frame(
-                    self.adapter.venue, self.clock(), f"{connection_id}-rest", "rest", body, req
-                )
+                # Stamped with the connection whose deltas this snapshot synchronises.
+                frame = Frame(self.adapter.venue, self.clock(), connection_id, "rest", body, req)
                 events = self.pipeline.process(frame)
                 self._track([r for e in events for r in e.records])
 
@@ -231,7 +232,7 @@ class WsVenueSession:
                     self.monitor.resync(self.adapter.venue)
             if requests:
                 self.resync_requested.clear()
-                await self._fetch_snapshots(requests, "resnapshot")
+                await self._fetch_snapshots(requests, self.last_connection_id)
 
     def _rotation_due_at(self, conn: _Conn) -> int:
         due = conn.opened_at + round(self.settings.rotate_after_s * NS_PER_S)
