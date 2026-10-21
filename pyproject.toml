@@ -1,0 +1,84 @@
+[project]
+name = "market-tape-recorder"
+version = "0.1.0"
+description = "Self-hosted, quality-certified recorder for crypto CEX, on-chain perp DEX and MOEX market data in one schema."
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+authors = [{ name = "Alex Asadullin" }]
+dependencies = [
+    "fastapi==0.156.8",
+    "httpx==0.28.1",
+    "numpy==2.5.4",
+    "orjson==3.13.0",
+    "pyarrow==26.0.0",
+    "pydantic==2.14.1",
+    "pydantic-settings==2.16.1",
+    "python-dotenv==1.2.4",
+    "pyyaml==6.0.3",
+    "sortedcontainers==2.4.0",
+    "structlog==26.1.0",
+    "typer==0.27.3",
+    "uvicorn==0.54.0",
+    "websockets==17.3",
+]
+
+[project.scripts]
+tape = "tape_recorder.cli:app"
+
+[dependency-groups]
+dev = [
+    "hypothesis==6.170.5",
+    "mypy==2.4.0",
+    "pytest==9.1.1",
+    "pytest-asyncio==1.4.0",
+    "pytest-cov==7.1.0",
+    "respx==0.23.1",
+    "ruff==0.17.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tape_recorder"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF", "N", "C4", "PTH", "TID"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+mypy_path = "src"
+files = ["src"]
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+# sortedcontainers ships no type information; it is used only inside book.py behind a typed wrapper.
+module = ["sortedcontainers"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# pyarrow ships partial stubs; untyped calls are confined to schema/writer/reader modules.
+module = ["pyarrow", "pyarrow.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers -m 'not live'"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = ["live: talks to real exchanges over the network (skipped by default)"]
+
+[tool.coverage.run]
+source = ["tape_recorder"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

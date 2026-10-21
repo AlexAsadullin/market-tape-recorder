@@ -1,0 +1,190 @@
+# Market Tape Recorder (I1) defaults. Every value can be overridden by env: TAPE_<SECTION>__<KEY>.
+# The data root comes from TRADEQ_DATA_DIR; secrets (API keys) only from env.
+
+region: eu-local
+
+paths:
+  project_subdir: market-tape-recorder
+  tape: tape                          # contract 6.2 canonical tape
+  captures: captures/region={region}  # per-region captures, merged into tape/ by merge-regions
+  staging: staging                    # in-progress Parquet files (never visible under tape/)
+  certificates: certificates          # contract 6.2 certificates for tape/
+  latency: latency                    # merge-regions latency distributions
+  archives: archives                  # monthly archive bundles
+  raw: raw                            # optional raw frame log (replayable)
+
+writer:
+  flush_rows: 5000          # buffered rows per partition before a row group is written
+  flush_interval_s: 5.0
+  rotate_rows: 2000000      # finalise part-<n>.parquet after this many rows ...
+  rotate_interval_s: 900.0  # ... or after this many seconds
+  compression: zstd
+
+session:
+  backoff:
+    initial_s: 0.5
+    max_s: 30.0
+    multiplier: 2.0
+    jitter: 0.2
+  redundant_connections: 2        # always-on overlapping connections per venue
+  rotate_after_s: 72000.0         # planned overlapping reconnect (exchanges drop at ~24 h)
+  daily_rotation_utc: "00:00:05"  # also rotate after midnight so every day starts with a snapshot
+  overlap_timeout_s: 15.0         # max wait for the new connection's first data before dropping old
+  connect_timeout_s: 10.0
+  resnapshot_interval_s: 600.0    # periodic REST snapshot (Binance) for snapshot/delta consistency
+  max_message_bytes: 16777216
+  seed: 7
+
+dedup:
+  enabled: true
+  window_s: 120.0     # duplicates from redundant connections arrive within this window
+  max_keys: 2000000
+
+http:
+  timeout_s: 10.0
+  user_agent: tradeq-market-tape-recorder/0.1
+
+venues:
+  binance:
+    adapter: binance_spot
+    ws_url: wss://stream.binance.com:9443/stream
+    rest_url: https://api.binance.com
+    snapshot_path: /api/v3/depth
+    snapshot_limit: 1000
+    depth_interval: 100ms
+    book_sequenced: true
+    trade_ids_consecutive: true
+    channels: [trades, book_delta, book_snapshot]
+    symbols:
+      BTCUSDT: {symbol: BTC-USDT-SPOT}
+      ETHUSDT: {symbol: ETH-USDT-SPOT}
+  binance-usdm:
+    adapter: binance_usdm
+    ws_url: wss://fstream.binance.com/stream
+    rest_url: https://fapi.binance.com
+    snapshot_path: /fapi/v1/depth
+    snapshot_limit: 1000
+    depth_interval: 100ms
+    mark_price_interval: 1s
+    book_sequenced: true
+    trade_ids_consecutive: true   # aggTrade ids are consecutive per symbol
+    channels: [trades, book_delta, book_snapshot, funding, liquidations]
+    symbols:
+      BTCUSDT: {symbol: BTC-USDT-PERP}
+  bybit:
+    adapter: bybit
+    ws_url: wss://stream.bybit.com/v5/public/linear
+    book_depth: 50
+    heartbeat_interval_s: 20.0
+    heartbeat_payload: '{"op":"ping"}'
+    book_sequenced: true
+    channels: [trades, book_delta, book_snapshot, funding, liquidations, open_interest]
+    symbols:
+      BTCUSDT: {symbol: BTC-USDT-PERP}
+  okx:
+    adapter: okx
+    ws_url: wss://ws.okx.com:8443/ws/v5/public
+    heartbeat_interval_s: 25.0
+    heartbeat_payload: ping
+    book_sequenced: true
+    channels: [trades, book_delta, book_snapshot, funding, liquidations, open_interest]
+    symbols:
+      BTC-USDT-SWAP: {symbol: BTC-USDT-PERP, contract_size: 0.01}
+  hyperliquid:
+    adapter: hyperliquid
+    ws_url: wss://api.hyperliquid.xyz/ws
+    heartbeat_interval_s: 30.0
+    heartbeat_payload: '{"method":"ping"}'
+    channels: [trades, book_snapshot, funding, open_interest]
+    symbols:
+      BTC: {symbol: BTC-USD-PERP}
+  moex:
+    adapter: moex_iss
+    rest_url: https://iss.moex.com/iss
+    algopack_url: https://apim.moex.com/iss  # used when TAPE_VENUES__MOEX__API_KEY is set
+    poll_interval_s: 5.0
+    timezone: Europe/Moscow
+    channels: [trades, book_snapshot]
+    rest_paths:
+      trades: /engines/{engine}/markets/{market}/boards/{board}/securities/{secid}/trades.json
+      orderbook: /engines/{engine}/markets/{market}/boards/{board}/securities/{secid}/orderbook.json
+    rest_params:
+      trades: {"iss.meta": "off", "iss.only": "trades", "next_trade": "1", "limit": "5000"}
+      orderbook: {"iss.meta": "off", "iss.only": "orderbook"}
+    session_window: {start: "06:50", end: "23:50", timezone: Europe/Moscow}
+    symbols:
+      SBER: {symbol: SBER-RUB-TQBR, contract_size: 10, engine: stock, market: shares, board: TQBR}
+      GAZP: {symbol: GAZP-RUB-TQBR, contract_size: 10, engine: stock, market: shares, board: TQBR}
+
+quality:
+  coverage_window: day        # "day" = venue session window; "observed" = first..last message
+  alive_gap_s: 5.0            # silence longer than this breaks coverage
+  book_compare_depth: 20      # levels compared between a snapshot and the reconstructed book
+  price_tolerance: 1.0e-9
+  size_rel_tolerance: 1.0e-9
+  silence_s:
+    book_delta: 10.0
+  checks:
+    messages:                     {threshold: 1,    direction: min, severity: hard}
+    sequence_gaps:                {threshold: 0,    direction: max, severity: soft}
+    trade_id_gaps:                {threshold: 0,    direction: max, severity: soft}
+    out_of_order_messages:        {threshold: 0,    direction: max, severity: soft}
+    duplicate_messages:           {threshold: 0,    direction: max, severity: soft}
+    crossed_book_events:          {threshold: 0,    direction: max, severity: soft}
+    locked_book_events:           {threshold: 0,    direction: max, severity: soft}
+    snapshot_mismatches:          {threshold: 0,    direction: max, severity: soft}
+    resubscription_gap_ms_max:    {threshold: 250,  direction: max, severity: soft}
+    clock_skew_p50_abs_ms:        {threshold: 1000, direction: max, severity: soft}
+    clock_skew_negative_ratio:    {threshold: 0.01, direction: max, severity: soft}
+    coverage_ratio:               {threshold: 0.99, direction: min, severity: soft}
+    coverage_ratio_floor:         {threshold: 0.5,  direction: min, severity: hard}
+  venue_overrides:
+    moex:
+      # ISS stamps trades to the second and is polled, so skew is dominated by the poll interval.
+      clock_skew_p50_abs_ms:      {threshold: 15000, direction: max, severity: soft}
+      resubscription_gap_ms_max:  {threshold: 15000, direction: max, severity: soft}
+
+merge:
+  primary_region: null        # rows that cannot be matched across regions come from this region
+  latency_quantiles: [0.5, 0.9, 0.99]
+
+archive:
+  universe:
+    - {venue: binance, symbol: BTC-USDT-SPOT}
+    - {venue: binance-usdm, symbol: BTC-USDT-PERP}
+    - {venue: bybit, symbol: BTC-USDT-PERP}
+    - {venue: okx, symbol: BTC-USDT-PERP}
+    - {venue: hyperliquid, symbol: BTC-USD-PERP}
+    - {venue: moex, symbol: SBER-RUB-TQBR}
+  channels: [trades, book_delta, book_snapshot, funding, liquidations, open_interest]
+  name_template: "tradeq-tape-{month}.tar"
+  report_name: QUALITY.md
+  manifest_name: manifest.json
+
+service:
+  enabled: true
+  host: 127.0.0.1
+  port: 8602
+  stale_after_s: 30.0
+
+logging:
+  level: INFO
+  json_output: false
+
+demo:
+  fixtures_dir: tests/fixtures/venues   # relative to the repository root
+  seed: 11
+  regions:
+    eu:
+      latency_ms: 6
+      jitter_ms: 2
+      faults:
+        - {kind: drop, venue: binance, index: 6}             # lost depth update -> sequence gap
+        - {kind: resubscribe, venue: okx, index: 8, gap_ms: 1500}  # blind re-subscription
+        - {kind: duplicate, venue: bybit, index: 4, delay_ms: 3}   # redundant copy (deduped)
+    tokyo:
+      latency_ms: 38
+      jitter_ms: 4
+      faults:
+        - {kind: cross, venue: bybit, index: 5}              # corrupted level crosses the book
+        - {kind: reorder, venue: binance-usdm, index: 4}     # out-of-order arrival
