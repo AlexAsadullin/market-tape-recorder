@@ -52,6 +52,9 @@ class Pipeline:
         self.monitor = monitor
         self.raw_log = raw_log
         self.stats = PipelineStats()
+        # Events parsed from the last frame before dedup: a connection whose every event is a
+        # duplicate is still delivering data (used for overlapping handovers).
+        self.last_parsed = 0
 
     def _parse(self, frame: Frame) -> list[ParsedEvent]:
         adapter = self.adapters[frame.venue]
@@ -67,6 +70,7 @@ class Pipeline:
     def process(self, frame: Frame) -> list[ParsedEvent]:
         """Normalise one frame; returns the events kept after dedup (already written)."""
         self.stats.frames += 1
+        self.last_parsed = 0
         if self.raw_log is not None:
             self.raw_log.write_frame(frame)
         try:
@@ -77,6 +81,7 @@ class Pipeline:
                 "parse_error", venue=frame.venue, error=repr(exc), payload=frame.payload[:200]
             )
             return []
+        self.last_parsed = len(events)
         kept: list[ParsedEvent] = []
         for event in events:
             if (

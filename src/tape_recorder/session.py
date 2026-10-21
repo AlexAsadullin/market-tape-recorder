@@ -158,7 +158,7 @@ class WsVenueSession:
                 payload = await conn.ws.recv()
                 frame = Frame(self.adapter.venue, self.clock(), conn.connection_id, "ws", payload)
                 events = self.pipeline.process(frame)
-                if events and not conn.first_data.is_set():
+                if self.pipeline.last_parsed and not conn.first_data.is_set():
                     conn.first_data.set()
                     await self._ensure_synced(conn.connection_id)
                 self._track([r for e in events for r in e.records])
