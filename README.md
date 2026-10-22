@@ -5,8 +5,7 @@ exchange and MOEX. It writes one normalised Parquet tape (contract 6.2) and issu
 instrument-day, which records sequence gaps, out-of-order and duplicate messages, crossed books, blind intervals
 at re-subscription, clock skew and coverage. On synthetic streams with one injected fault each, the certificate
 caught 100% of the faults (95% CI 99.4% to 100%, 600 runs per fault type) with no false alarm on 600 clean
-streams. Overlapping reconnects lost 0.0 trades per planned reconnect, where naive reconnects lost 75.1 (95% CI
-68.6 to 81.5, 20 runs each). Details are in [docs/report.md](docs/report.md).
+streams. Overlapping reconnects lost 0.0 trades per planned reconnect, where naive reconnects lost 75.0 (95% CI 68.5 to 81.4, 20 runs each). Details are in [docs/report.md](docs/report.md).
 
 Specification: `quant_platform_plan_full.md`, project I1, and `../prompts/02-market-tape-recorder.md`.
 
@@ -81,7 +80,7 @@ Synthetic streams in the real venue wire formats (`make report`, seed 20261022);
 | Injected faults caught by the certificate (drop, reorder, cross, re-subscription, duplicate) | 100% (99.4% to 100%) per fault type | 600 per type |
 | False alarms of the certificate on clean streams | 0.0% (0.0% to 0.6%) | 600 |
 | Duplicates caught on Binance, certificate vs cryptofeed 3.0.1 | 100% (98.1% to 100%) vs 0.0% (0.0% to 1.9%) | 200 |
-| Trades lost per planned reconnect, naive vs overlapping rotation | 75.1 (68.6 to 81.5) vs 0.0 (0.0 to 0.0) | 20 per mode |
+| Trades lost per planned reconnect, naive vs overlapping rotation | 75.0 (68.5 to 81.4) vs 0.0 (0.0 to 0.0) | 20 per mode |
 | Days certified after two regions with independent losses are merged, vs one region | 70.0% (60.4% to 78.1%) vs 0.0% (0.0% to 3.7%) | 100 |
 
 ## Limitations
