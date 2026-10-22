@@ -52,6 +52,10 @@ def fmt_mean(m: Mean, digits: int = 1) -> str:
     return f"{m.mean:.{digits}f} [{m.lo:.{digits}f}, {m.hi:.{digits}f}]"
 
 
+def fmt_p(p: float) -> str:
+    return "p < 0.0001" if p < 1e-4 else f"p = {p:.3g}"
+
+
 def rate_of(rows: Sequence[Any], pick: Callable[[Any], bool | None]) -> Rate:
     values = [v for v in (pick(r) for r in rows) if v is not None]
     return wilson(sum(values), len(values))
@@ -76,7 +80,7 @@ def detection_tables(rows: list[Outcome], cfg: ReportConfig) -> tuple[list[str],
         test = two_proportion_z(cert.k, cert.n, gap.k, gap.n)
         lines.append(
             f"| {fault} | {cert.n} | {fmt_rate(cert)} | {fmt_rate(gap)} | "
-            f"z = {test.statistic:.2f}, p = {test.p_value:.3g} |"
+            f"z = {test.statistic:.2f}, {fmt_p(test.p_value)} |"
         )
         data["pooled"][fault] = {
             "certificate": cert.to_json(),
@@ -101,7 +105,7 @@ def detection_tables(rows: list[Outcome], cfg: ReportConfig) -> tuple[list[str],
         test = two_proportion_z(cert.k, cert.n, cf.k, cf.n)
         lines.append(
             f"| {fault} | {cert.n} | {fmt_rate(cert)} | {fmt_rate(gap)} | {fmt_rate(cf)} | "
-            f"z = {test.statistic:.2f}, p = {test.p_value:.3g} |"
+            f"z = {test.statistic:.2f}, {fmt_p(test.p_value)} |"
         )
         data["binance"][fault] = {
             "certificate": cert.to_json(),
@@ -111,7 +115,9 @@ def detection_tables(rows: list[Outcome], cfg: ReportConfig) -> tuple[list[str],
         }
     lines += [
         "",
-        "## Table 3. Certificate detection rate per venue",
+        "## Table 3. Detection rate per venue: certificate / gap monitor",
+        "",
+        "Each cell: certificate rate / gap monitor rate, n runs per cell in parentheses.",
         "",
         "| Fault | " + " | ".join(cfg.detection.venues) + " |",
         "|---|" + "---|" * len(cfg.detection.venues),
@@ -119,9 +125,14 @@ def detection_tables(rows: list[Outcome], cfg: ReportConfig) -> tuple[list[str],
     for fault in faults:
         cells = []
         for venue in cfg.detection.venues:
-            r = rate_of([o for o in rows if o.fault == fault and o.venue == venue], _cert)
-            cells.append(f"{fmt_rate(r)} (n={r.n})")
-            data["per_venue"].setdefault(fault, {})[venue] = r.to_json()
+            sel = [o for o in rows if o.fault == fault and o.venue == venue]
+            r = rate_of(sel, _cert)
+            g = rate_of(sel, lambda o: o.gap_monitor)
+            cells.append(f"{r.p:.3f} / {g.p:.3f} (n={r.n})")
+            data["per_venue"].setdefault(fault, {})[venue] = {
+                "certificate": r.to_json(),
+                "gap_monitor": g.to_json(),
+            }
         lines.append(f"| {fault} | " + " | ".join(cells) + " |")
     dup = [r for r in rows if r.fault == "duplicate"]
     dedup = rate_of(dup, lambda r: r.dedup_clean)
@@ -208,8 +219,8 @@ def rotation_tables(rows: list[RotationRun], cfg: ReportConfig) -> tuple[list[st
                 [r.missing_per_rotation for r in base],
             )
             lines.append(
-                f"| {m} | {tb.statistic:.2f} | {tb.p_value:.3g} | {tm.statistic:.2f} | "
-                f"{tm.p_value:.3g} |"
+                f"| {m} | {tb.statistic:.2f} | {fmt_p(tb.p_value)} | {tm.statistic:.2f} | "
+                f"{fmt_p(tm.p_value)} |"
             )
             data["tests"][m] = {"blind_ms": tb.to_json(), "missing": tm.to_json()}
     return lines, data
@@ -252,7 +263,7 @@ def regions_tables(rows: list[RegionRun], cfg: ReportConfig) -> tuple[list[str],
     lines += [
         "",
         f"Two-proportion z-test, days certified, merged vs {first}: z = {test.statistic:.2f}, "
-        f"p = {test.p_value:.3g} (critical |z| = 1.96).",
+        f"{fmt_p(test.p_value)} (critical |z| = 1.96).",
     ]
     data["z_test_certified_merged_vs_" + first] = test.to_json()
     return lines, data
