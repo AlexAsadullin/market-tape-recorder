@@ -50,7 +50,7 @@ packages = ["src/tape_recorder"]
 [tool.ruff]
 line-length = 100
 target-version = "py313"
-src = ["src", "tests"]
+src = ["src", "tests", "."]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM", "RUF", "N", "C4", "PTH", "TID"]
@@ -59,7 +59,7 @@ select = ["E", "F", "I", "B", "UP", "SIM", "RUF", "N", "C4", "PTH", "TID"]
 python_version = "3.13"
 strict = true
 mypy_path = "src"
-files = ["src"]
+files = ["src", "experiments"]
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
@@ -71,6 +71,12 @@ ignore_missing_imports = true
 # pyarrow ships partial stubs; untyped calls are confined to schema/writer/reader modules.
 module = ["pyarrow", "pyarrow.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# The report experiments only: cryptofeed (bench group) and PyYAML ship no type information.
+module = ["cryptofeed", "cryptofeed.*", "yaml"]
+ignore_missing_imports = true
+follow_imports = "skip"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

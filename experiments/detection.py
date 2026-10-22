@@ -16,6 +16,7 @@ Duplicates are injected with dedup disabled, because with dedup on they never re
 
 from __future__ import annotations
 
+import itertools
 import random
 import shutil
 import statistics
@@ -79,7 +80,7 @@ def inject(
 
 def gap_monitor(frames: list[Frame], ratio: float) -> bool:
     ts = sorted(f.ts_local for f in frames if f.source == "ws")
-    gaps = [b - a for a, b in zip(ts, ts[1:], strict=False)]
+    gaps = [b - a for a, b in itertools.pairwise(ts)]
     return max(gaps) > ratio * statistics.median(gaps)
 
 
@@ -99,7 +100,9 @@ def run_detection(
             s = no_dedup if fault == "duplicate" else settings
             for run in range(cfg.runs):
                 rng = random.Random(f"{seed}-{venue}-{fault}-{run}")
-                frames = inject(venue_frames(venue, streams[venue], seed + run), venue, fault, cfg, rng)
+                frames = inject(
+                    venue_frames(venue, streams[venue], seed + run), venue, fault, cfg, rng
+                )
                 cert = _certify(s, frames, venue, work / f"{venue}-{fault}-{run}")
                 dedup_clean = None
                 if fault == "duplicate":

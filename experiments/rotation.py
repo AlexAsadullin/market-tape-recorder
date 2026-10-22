@@ -158,7 +158,9 @@ async def _record(
     writer.close()
 
 
-def run_rotation(settings: Settings, cfg: RotationConfig, seed: int, work: Path) -> list[RotationRun]:
+def run_rotation(
+    settings: Settings, cfg: RotationConfig, seed: int, work: Path
+) -> list[RotationRun]:
     out: list[RotationRun] = []
     for name, mode in cfg.modes.items():
         for run in range(cfg.runs):

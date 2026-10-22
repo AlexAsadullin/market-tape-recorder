@@ -17,7 +17,7 @@ from __future__ import annotations
 import random
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 
 import orjson
 from pydantic import BaseModel, ConfigDict, Field
@@ -147,7 +147,7 @@ class _Bybit:
 class _Okx:
     """``books`` with ``prevSeqId == previous seqId``; snapshots carry ``prevSeqId = -1``."""
 
-    ARG = {"channel": "books", "instId": "BTC-USDT-SWAP"}
+    ARG: ClassVar[dict[str, str]] = {"channel": "books", "instId": "BTC-USDT-SWAP"}
 
     def __init__(self, rng: random.Random) -> None:
         self.rng, self.seq = rng, 9_000_000

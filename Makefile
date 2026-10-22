@@ -1,4 +1,4 @@
-.PHONY: setup lint format typecheck test test-live reproduce report record
+.PHONY: setup lint format typecheck test test-live reproduce report report-smoke record
 
 UV ?= uv
 
@@ -7,12 +7,12 @@ setup:
 	$(UV) sync --frozen
 
 lint:
-	$(UV) run ruff check src tests
-	$(UV) run ruff format --check src tests
+	$(UV) run ruff check src tests experiments
+	$(UV) run ruff format --check src tests experiments
 
 format:
-	$(UV) run ruff format src tests
-	$(UV) run ruff check --fix src tests
+	$(UV) run ruff format src tests experiments
+	$(UV) run ruff check --fix src tests experiments
 
 typecheck:
 	$(UV) run mypy
@@ -27,7 +27,11 @@ reproduce:
 	$(UV) run python -m tape_recorder.demo
 
 report:
-	$(UV) run python -m tape_recorder.experiments
+	$(UV) sync --frozen --group bench
+	$(UV) run --group bench python -m experiments
+
+report-smoke:
+	$(UV) run --group bench python -m experiments --smoke
 
 record:
 	$(UV) run tape record
