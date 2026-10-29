@@ -24,9 +24,9 @@ class Clock:
 
 
 def trades(n: int, ts: int, start: int = 0) -> list[Record]:
-    f = RecordFactory("binance", "eu", "c1", ts)
+    f = RecordFactory("moex-algopack", "msk", "c1", ts)
     return [
-        f.trade("BTC-USDT-SPOT", ts, i, str(i), 1.0, 1.0, "buy") for i in range(start, start + n)
+        f.trade("SBER-RUB-TQBR", ts, i, str(i), 1.0, 1.0, "buy") for i in range(start, start + n)
     ]
 
 
@@ -54,7 +54,7 @@ def test_no_partial_file_is_visible_until_finalised(tmp_path: Path) -> None:
     w.close()
     (part,) = visible_parts(tmp_path)
     assert part.name == "part-0.parquet"
-    assert "venue=binance/channel=trades/symbol=BTC-USDT-SPOT/date=2026-10-20" in str(part)
+    assert "venue=moex-algopack/channel=trades/symbol=SBER-RUB-TQBR/date=2026-10-20" in str(part)
     assert pq.read_table(part).num_rows == 15
     assert not list((tmp_path / "staging").glob("*.inprogress"))
 
@@ -78,16 +78,16 @@ def test_rotation_by_rows_and_time(tmp_path: Path) -> None:
 
 def test_partitions_split_by_utc_date_and_channel(tmp_path: Path) -> None:
     w, _ = make(tmp_path)
-    f = RecordFactory("okx", "eu", "c1", DAY0 + NS_PER_DAY + 5)
+    f = RecordFactory("moex-tbank", "msk", "c1", DAY0 + NS_PER_DAY + 5)
     w.write(trades(2, DAY0))
-    w.write([f.funding("BTC-USDT-PERP", None, 1e-4, 1.0, None, None)])
+    w.write([f.trading_status("SBER-RUB-TQBR", None, "T")])
     w.write(trades(1, DAY0 + NS_PER_DAY))
     w.close()
     keys = list_partitions(tmp_path / "tape")
     assert {(k.venue, k.channel, k.date) for k in keys} == {
-        ("binance", Channel.TRADES, "2026-10-20"),
-        ("binance", Channel.TRADES, "2026-10-21"),
-        ("okx", Channel.FUNDING, "2026-10-21"),
+        ("moex-algopack", Channel.TRADES, "2026-10-20"),
+        ("moex-algopack", Channel.TRADES, "2026-10-21"),
+        ("moex-tbank", Channel.TRADING_STATUS, "2026-10-21"),
     }
 
 

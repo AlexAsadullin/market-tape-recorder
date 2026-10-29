@@ -82,8 +82,15 @@ class FakeConnector:
     def __init__(self, scripts: list[Callable[[str], FakeWs]], fail_first: int = 0) -> None:
         self.scripts, self.log, self.fail_first = scripts, [], fail_first
         self.opened: list[FakeWs] = []
+        self.handshakes: list[tuple[tuple[tuple[str, str], ...], tuple[str, ...]]] = []
 
-    async def __call__(self, url: str) -> FakeWs:
+    async def __call__(
+        self,
+        url: str,
+        headers: tuple[tuple[str, str], ...] = (),
+        subprotocols: tuple[str, ...] = (),
+    ) -> FakeWs:
+        self.handshakes.append((headers, subprotocols))
         if self.fail_first:
             self.fail_first -= 1
             raise OSError("refused")
@@ -100,6 +107,28 @@ async def no_sleep(_: float) -> None:
 
 def payloads(frames: list[Frame], source: str = "ws") -> list[str]:
     return [f.payload for f in frames if f.source == source]
+
+
+def with_uid(settings: Settings, frames: list[Frame]) -> Settings:
+    """T-Bank settings that already know the fixture's uid (the ShareBy answer of frame 0)."""
+    uid = orjson.loads(frames[0].payload)["instrument"]["uid"]
+    venue = settings.venues["moex-tbank"]
+    symbols = dict(venue.symbols)
+    symbols["SBER"] = symbols["SBER"].model_copy(update={"instrument_uid": uid})
+    venues = dict(settings.venues)
+    venues["moex-tbank"] = venue.model_copy(update={"symbols": symbols})
+    return settings.model_copy(update={"venues": venues})
+
+
+def looping_book_stream(frames: list[Frame]) -> list[str]:
+    """Distinct order books, so a looping fake stream never repeats a dedup key."""
+    books = [m for m in payloads(frames) if "orderbook" in m]
+    out: list[str] = []
+    for i in range(200):
+        doc = orjson.loads(books[i % len(books)])
+        doc["orderbook"]["time"] = f"2026-10-20T12:{i // 60:02d}:{i % 60:02d}.000000Z"
+        out.append(orjson.dumps(doc).decode())
+    return out
 
 
 def session_for(
@@ -158,16 +187,17 @@ def test_next_daily_rotation() -> None:
 async def test_reconnects_after_drop_and_after_connect_failure(
     settings: Settings, venue_frames: Frames
 ) -> None:
-    msgs = payloads(venue_frames("bybit"))
+    frames = venue_frames("moex-tbank")
+    msgs = payloads(frames)
     conn = FakeConnector(
         [
             lambda n: FakeWs(n, msgs[:5], [], close_after=True),
-            lambda n: FakeWs(n, msgs[5:10], [], close_after=False),
+            lambda n: FakeWs(n, msgs[5:], [], close_after=False),
         ],
         fail_first=1,
     )
     sess, sink, monitor = session_for(
-        settings, "bybit", conn, lambda r: "", redundant_connections=1
+        with_uid(settings, frames), "moex-tbank", conn, lambda r: "", redundant_connections=1
     )
     await run_until(sess, lambda: len({r.connection_id for r in sink.records}) == 2)
     assert conn.opened[0].sent == sess.adapter.subscribe_messages()
@@ -175,17 +205,31 @@ async def test_reconnects_after_drop_and_after_connect_failure(
     assert venue.connects == 2 and venue.disconnects >= 1
 
 
+async def test_handshake_carries_token_and_subprotocol(
+    make_settings: Callable[..., Settings], venue_frames: Frames
+) -> None:
+    frames = venue_frames("moex-tbank")
+    s = with_uid(make_settings(TBANK_TOKEN="tok"), frames)
+    conn = FakeConnector([lambda n: FakeWs(n, payloads(frames), [], close_after=False)])
+    sess, sink, _ = session_for(s, "moex-tbank", conn, lambda r: "", redundant_connections=1)
+    await run_until(sess, lambda: bool(sink.records))
+    headers, subprotocols = conn.handshakes[0]
+    assert ("Authorization", "Bearer tok") in headers and subprotocols == ("json",)
+
+
 async def test_redundant_connections_are_deduplicated(
     settings: Settings, venue_frames: Frames
 ) -> None:
-    msgs = payloads(venue_frames("okx"))[:20]
+    frames = venue_frames("moex-tbank")
+    s = with_uid(settings, frames)
+    msgs = payloads(frames)
     conn = FakeConnector([lambda n: FakeWs(n, msgs, [], close_after=False)])
-    sess, sink, _ = session_for(settings, "okx", conn, lambda r: "", redundant_connections=2)
+    sess, sink, _ = session_for(s, "moex-tbank", conn, lambda r: "", redundant_connections=2)
     single = Sink()
-    adapter = build_adapter("okx", settings.venues["okx"])
-    ref = Pipeline({"okx": adapter}, "eu", single, None)
+    adapter = build_adapter("moex-tbank", s.venues["moex-tbank"])
+    ref = Pipeline({"moex-tbank": adapter}, "eu", single, None)
     for i, m in enumerate(msgs):
-        ref.process(Frame("okx", i, "x", "ws", m))
+        ref.process(Frame("moex-tbank", i, "x", "ws", m))
     await run_until(
         sess, lambda: len(conn.opened) == 2 and len(sink.records) >= len(single.records)
     )
@@ -197,14 +241,20 @@ async def test_redundant_connections_are_deduplicated(
 async def test_rotation_overlaps_old_and_new_connection(
     settings: Settings, venue_frames: Frames
 ) -> None:
-    msgs = payloads(venue_frames("hyperliquid"))
+    frames = venue_frames("moex-tbank")
+    msgs = looping_book_stream(frames)
     log: list[str] = []
     conn = FakeConnector(
         [lambda n: FakeWs(n, msgs, log, close_after=False, interval_s=0.002, loop=True)]
     )
     conn.log = log
     sess, _, _ = session_for(
-        settings, "hyperliquid", conn, lambda r: "", redundant_connections=1, rotate_after_s=0.1
+        with_uid(settings, frames),
+        "moex-tbank",
+        conn,
+        lambda r: "",
+        redundant_connections=1,
+        rotate_after_s=0.1,
     )
     await run_until(sess, lambda: sess.rotations >= 2)
     # The replacement is opened before the connection it replaces is closed.
@@ -212,48 +262,32 @@ async def test_rotation_overlaps_old_and_new_connection(
     assert log.index("open ws2") < log.index("close ws1")
 
 
-async def test_binance_sync_and_gap_resync_via_rest(
-    settings: Settings, venue_frames: Frames
+async def test_polling_session_with_mocked_algopack(
+    make_settings: Callable[..., Settings], venue_frames: Frames
 ) -> None:
-    frames = venue_frames("binance")
-    ws_msgs = payloads(frames)
-    snapshot_body = next(f.payload for f in frames if f.source == "rest")
-    deltas = [m for m in ws_msgs if "depthUpdate" in m]
-    gapped = deltas[:5] + deltas[6:12]  # one update lost -> gap -> REST resync
-    calls: list[RestRequest] = []
-
-    async def fetcher(req: RestRequest) -> str:
-        calls.append(req)
-        return snapshot_body
-
-    conn = FakeConnector([lambda n: FakeWs(n, gapped, [], close_after=False)])
-    sess, sink, monitor = session_for(settings, "binance", conn, fetcher, redundant_connections=1)
-    await run_until(sess, lambda: sess.resyncs >= 1 and len(calls) >= 4)
-    assert {r.native_symbol for r in calls} == {"BTCUSDT", "ETHUSDT"}
-    assert any(r.channel == "book_snapshot" for r in sink.records)
-    assert sess.trackers["BTC-USDT-SPOT"].gaps >= 1
-    assert monitor.venues()[0].resyncs >= 1
-
-
-async def test_polling_session_with_mocked_iss(settings: Settings, venue_frames: Frames) -> None:
-    frames = venue_frames("moex")
-    adapter = build_adapter("moex", settings.venues["moex"])
+    s = make_settings(ALGOPACK_TOKEN="tok", TAPE_QUALITY__COVERAGE_WINDOW="observed")
+    frames = venue_frames("moex-algopack")
+    by_tag = {f.request.tag: f.payload for f in frames if f.request is not None}
+    adapter = build_adapter("moex-algopack", s.venues["moex-algopack"])
     sink = Sink()
-    pipeline = Pipeline({"moex": adapter}, "eu", sink, Deduplicator(60, 1000))
-    base = "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities"
+    pipeline = Pipeline({"moex-algopack": adapter}, "eu", sink, Deduplicator(60, 1000))
+    base = "https://apim.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities"
     with respx.mock(assert_all_called=False) as mock:
-        mock.get(f"{base}/SBER/trades.json").respond(200, text=frames[0].payload)
-        mock.get(f"{base}/SBER/orderbook.json").respond(200, text=frames[1].payload)
-        mock.get(f"{base}/GAZP/trades.json").respond(
-            200, json={"trades": {"columns": [], "data": []}}
-        )
-        mock.get(f"{base}/GAZP/orderbook.json").respond(503)
+        mock.get(f"{base}/SBER/trades.json").respond(200, text=by_tag["trades"])
+        mock.get(f"{base}/SBER/orderbook.json").respond(200, text=by_tag["orderbook"])
+        mock.get(f"{base}/SBER/candles.json").respond(200, text=by_tag["candles"])
+        mock.get(f"{base}/SBER.json").respond(200, text=by_tag["marketdata"])
+        for tag in ("tradestats", "orderstats", "obstats"):
+            mock.get(f"https://apim.moex.com/iss/datashop/algopack/eq/{tag}/SBER.json").respond(
+                200, text=by_tag[tag]
+            )
+        mock.get(url__regex=r".*/(GAZP|LKOH).*").respond(503)
         async with httpx.AsyncClient() as client:
             sess = PollingVenueSession(
                 adapter,
                 pipeline,
                 HttpxFetcher(client),
-                settings.session,
+                s.session,
                 wall_clock_ns,
                 counter_ids("p"),
                 no_sleep,
@@ -265,16 +299,31 @@ async def test_polling_session_with_mocked_iss(settings: Settings, venue_frames:
                     await asyncio.sleep(0.001)
             stop.set()
             await task
+        sent = mock.calls[0].request
+    assert sent.headers["Authorization"] == "Bearer tok"
     trades = [r for r in sink.records if r.channel == "trades"]
-    n_rows = len(orjson.loads(frames[0].payload)["trades"]["data"])
+    n_rows = len(orjson.loads(by_tag["trades"])["trades"]["data"])
     assert len(trades) == n_rows  # repeated polls are deduplicated by trade number
-    # One connection id per run plus a fresh one after every failure.
     assert sess.new_id() == f"p-{sess.failures + 2}"
 
 
+async def test_post_requests_send_json_body() -> None:
+    req = RestRequest(
+        "https://example.test/rest/Svc/Method", "candles", "SBER", method="POST", body='{"a": 1}'
+    )
+    with respx.mock() as mock:
+        route = mock.post("https://example.test/rest/Svc/Method").respond(200, text="{}")
+        async with httpx.AsyncClient() as client:
+            assert await HttpxFetcher(client)(req) == "{}"
+    sent = route.calls[0].request
+    assert sent.content == b'{"a": 1}'
+    assert sent.headers["Content-Type"] == "application/json"
+    assert RestRequest.from_json(req.to_json()) == req
+
+
 def test_polling_requires_interval(settings: Settings) -> None:
-    cfg = settings.venues["moex"].model_copy(update={"poll_interval_s": None})
-    adapter = build_adapter("moex", cfg)
+    cfg = settings.venues["moex-algopack"].model_copy(update={"poll_interval_s": None})
+    adapter = build_adapter("moex-algopack", cfg)
     with pytest.raises(ValueError):
         PollingVenueSession(
             adapter,
@@ -289,15 +338,16 @@ def test_polling_requires_interval(settings: Settings) -> None:
 async def test_naive_rotation_closes_before_opening(
     settings: Settings, venue_frames: Frames
 ) -> None:
-    msgs = payloads(venue_frames("hyperliquid"))
+    frames = venue_frames("moex-tbank")
+    msgs = looping_book_stream(frames)
     log: list[str] = []
     conn = FakeConnector(
         [lambda n: FakeWs(n, msgs, log, close_after=False, interval_s=0.002, loop=True)]
     )
     conn.log = log
     sess, _, _ = session_for(
-        settings,
-        "hyperliquid",
+        with_uid(settings, frames),
+        "moex-tbank",
         conn,
         lambda r: "",
         redundant_connections=1,

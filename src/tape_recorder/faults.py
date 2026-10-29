@@ -2,7 +2,7 @@
 
 Each fault targets the ``index``-th frame of one venue's stream:
 
-- ``drop``: the frame is lost (a sequence gap for book deltas).
+- ``drop``: the frame is lost (a missed poll or a lost stream message).
 - ``duplicate``: a redundant connection delivers a copy ``delay_ms`` later.
 - ``reorder``: the frame is delayed past the next one, so it arrives out of order.
 - ``cross``: the first bid of the frame is moved above the best ask (a corrupted, crossed book).
@@ -24,42 +24,34 @@ from tape_recorder.timeutil import NS_PER_MS
 CROSS_MARKUP = 1.05
 
 
-def _first_level_list(obj: Any, keys: tuple[str, ...]) -> list[Any] | None:
-    if isinstance(obj, dict):
-        for k in keys:
-            if isinstance(obj.get(k), list):
-                found: list[Any] = obj[k]
-                return found
-        children: list[Any] = list(obj.values())
-    elif isinstance(obj, list):
-        children = obj
-    else:
-        return None
-    for v in children:
-        sub = _first_level_list(v, keys)
-        if sub is not None:
-            return sub
-    return None
+def _quotation(price: float) -> dict[str, Any]:
+    units = int(price)
+    return {"units": str(units), "nano": round((price - units) * 1e9)}
 
 
 def _cross_payload(payload: str) -> str:
+    """Insert a bid above the best ask into a T-Bank or ISS order-book payload."""
     doc = orjson.loads(payload)
-    data = doc.get("data", doc) if isinstance(doc, dict) else doc
-    levels = data.get("levels") if isinstance(data, dict) else None
-    if isinstance(levels, list) and len(levels) == 2:  # Hyperliquid l2Book
-        bids, asks = levels
-        ask = min(float(a["px"]) for a in asks)
-        bids.insert(0, {"px": str(ask * CROSS_MARKUP), "sz": "1", "n": 1})
+    book = doc.get("orderbook") if isinstance(doc, dict) else None
+    if isinstance(book, dict) and isinstance(book.get("bids"), list):  # T-Bank stream message
+        asks = book.get("asks") or book["bids"]
+        prices = [int(lv["price"]["units"]) + int(lv["price"]["nano"]) / 1e9 for lv in asks]
+        if not prices:
+            raise ValueError("frame has no levels to corrupt")
+        book["bids"].insert(0, {"price": _quotation(max(prices) * CROSS_MARKUP), "quantity": "1"})
         return orjson.dumps(doc).decode()
-    bids = _first_level_list(doc, ("b", "bids"))
-    asks = _first_level_list(doc, ("a", "asks"))
-    if bids is None:
-        raise ValueError("frame has no bid levels to corrupt")
-    ref = [float(a[0]) for a in asks or []] or [float(b[0]) for b in bids]
-    if not ref:
-        raise ValueError("frame has no levels to corrupt")
-    bids.insert(0, [str(max(ref) * CROSS_MARKUP), "1"])
-    return orjson.dumps(doc).decode()
+    if isinstance(book, dict) and isinstance(book.get("data"), list):  # ISS orderbook table
+        cols: list[str] = book["columns"]
+        side, price = cols.index("BUYSELL"), cols.index("PRICE")
+        rows: list[list[Any]] = book["data"]
+        if not rows:
+            raise ValueError("frame has no levels to corrupt")
+        top = max(float(r[price]) for r in rows)
+        corrupt = list(rows[0])
+        corrupt[side], corrupt[price] = "B", round(top * CROSS_MARKUP, 2)
+        rows.insert(0, corrupt)
+        return orjson.dumps(doc).decode()
+    raise ValueError("frame has no order book to corrupt")
 
 
 def apply_fault(frames: list[Frame], fault: FaultSpec) -> list[Frame]:

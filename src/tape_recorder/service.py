@@ -1,4 +1,4 @@
-"""FastAPI status endpoint: health, lag and last-seen per stream."""
+"""FastAPI status endpoint: health, lag and last-seen per stream, and collector load."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from tape_recorder import __version__
-from tape_recorder.monitor import StreamMonitor, StreamStatus, VenueStatus
+from tape_recorder.monitor import LoadMonitor, LoadStatus, StreamMonitor, StreamStatus, VenueStatus
 from tape_recorder.schema import SCHEMA_VERSION
 
 
@@ -19,7 +19,7 @@ class Health(BaseModel):
     stale_streams: int
 
 
-def create_app(monitor: StreamMonitor, region: str) -> FastAPI:
+def create_app(monitor: StreamMonitor, region: str, load: LoadMonitor | None = None) -> FastAPI:
     app = FastAPI(title="Market Tape Recorder", version=__version__)
 
     @app.get("/health")
@@ -42,5 +42,13 @@ def create_app(monitor: StreamMonitor, region: str) -> FastAPI:
     @app.get("/v1/venues")
     def venues() -> list[VenueStatus]:
         return monitor.venues()
+
+    if load is not None:
+        probe = load
+
+        @app.get("/v1/load")
+        def load_status() -> LoadStatus:
+            """Collector pressure; other jobs on the host poll this and pause while it is high."""
+            return probe.status()
 
     return app

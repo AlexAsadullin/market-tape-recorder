@@ -13,15 +13,16 @@ from typing import Literal, Protocol
 
 from tape_recorder.frames import RestRequest
 from tape_recorder.schema import (
+    STATS_COLUMNS,
     BookDelta,
     BookSide,
     BookSnapshotLevel,
+    Candle,
     Channel,
-    Funding,
-    Liquidation,
-    OpenInterest,
     Record,
+    StatsBar,
     Trade,
+    TradingStatus,
 )
 from tape_recorder.settings import SymbolSettings, VenueSettings
 
@@ -60,8 +61,7 @@ class RecordFactory:
         price: float,
         size: float,
         side: str,
-        buyer: str | None = None,
-        seller: str | None = None,
+        trading_session: str | None = None,
     ) -> Trade:
         return Trade(
             self.venue,
@@ -75,8 +75,9 @@ class RecordFactory:
             price,
             size,
             side,
-            buyer,
-            seller,
+            None,
+            None,
+            trading_session,
         )
 
     def deltas(
@@ -145,65 +146,76 @@ class RecordFactory:
             )
         return tuple(out)
 
-    def funding(
+    def candle(
         self,
         symbol: str,
-        ts_exchange: int | None,
-        rate: float,
-        mark_price: float,
-        index_price: float | None,
-        next_funding_ts: int | None,
-    ) -> Funding:
-        return Funding(
+        interval: str,
+        ts_open: int,
+        ts_close: int,
+        ohlc: tuple[float, float, float, float],
+        volume: float,
+        value: float | None,
+    ) -> Candle:
+        o, h, lo, c = ohlc
+        return Candle(
             self.venue,
             symbol,
-            ts_exchange,
+            ts_open,
             self.ts_local,
             self.capture_region,
             self.connection_id,
             None,
-            rate,
-            mark_price,
-            index_price,
-            next_funding_ts,
-        )
-
-    def liquidation(
-        self,
-        symbol: str,
-        ts_exchange: int | None,
-        side: str,
-        price: float,
-        size: float,
-        trader: str | None = None,
-    ) -> Liquidation:
-        return Liquidation(
-            self.venue,
-            symbol,
-            ts_exchange,
-            self.ts_local,
-            self.capture_region,
-            self.connection_id,
-            None,
-            side,
-            price,
-            size,
-            trader,
-        )
-
-    def open_interest(
-        self, symbol: str, ts_exchange: int | None, value: float, notional: float | None
-    ) -> OpenInterest:
-        return OpenInterest(
-            self.venue,
-            symbol,
-            ts_exchange,
-            self.ts_local,
-            self.capture_region,
-            self.connection_id,
-            None,
+            interval,
+            ts_open,
+            ts_close,
+            o,
+            h,
+            lo,
+            c,
+            volume,
             value,
-            notional,
+        )
+
+    def trading_status(
+        self,
+        symbol: str,
+        ts_exchange: int | None,
+        status: str,
+        limit_order_allowed: bool | None = None,
+        market_order_allowed: bool | None = None,
+    ) -> TradingStatus:
+        return TradingStatus(
+            self.venue,
+            symbol,
+            ts_exchange,
+            self.ts_local,
+            self.capture_region,
+            self.connection_id,
+            None,
+            status,
+            limit_order_allowed,
+            market_order_allowed,
+        )
+
+    def stats_bar(
+        self,
+        channel: Channel,
+        symbol: str,
+        ts_exchange: int,
+        ts_published: int | None,
+        values: dict[str, float | None],
+    ) -> StatsBar:
+        return StatsBar(
+            self.venue,
+            symbol,
+            ts_exchange,
+            self.ts_local,
+            self.capture_region,
+            self.connection_id,
+            None,
+            channel,
+            ts_published,
+            tuple((name, values.get(name)) for name in STATS_COLUMNS[channel]),
         )
 
 
@@ -216,6 +228,14 @@ class VenueAdapter(Protocol):
 
     def ws_url(self) -> str:
         """WebSocket endpoint (``ws`` transports only)."""
+        ...
+
+    def ws_headers(self) -> tuple[tuple[str, str], ...]:
+        """Extra handshake headers (for example a bearer token); empty for public feeds."""
+        ...
+
+    def ws_subprotocols(self) -> tuple[str, ...]:
+        """WebSocket subprotocols to request in the handshake."""
         ...
 
     def subscribe_messages(self) -> list[str]:
@@ -246,7 +266,7 @@ class VenueAdapter(Protocol):
 
 
 class SymbolMap:
-    """Native venue symbol <-> contract symbol (``BASE-QUOTE-KIND``), from settings only."""
+    """Native venue symbol <-> contract symbol (``<SECID>-RUB-<BOARD>``), from settings only."""
 
     def __init__(self, symbols: dict[str, SymbolSettings]) -> None:
         self._by_native = symbols

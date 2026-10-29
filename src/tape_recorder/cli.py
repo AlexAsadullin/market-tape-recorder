@@ -1,4 +1,4 @@
-"""``tape`` command line: record | certify | merge-regions | archive | replay."""
+"""``tape`` command line: record | backfill | certify | merge-regions | archive | replay."""
 
 from __future__ import annotations
 
@@ -8,9 +8,11 @@ from datetime import date
 from pathlib import Path
 from typing import Annotated
 
+import httpx
 import typer
 
 from tape_recorder.archive import build_archive
+from tape_recorder.history import backfill as backfill_async
 from tape_recorder.logging_setup import configure_logging
 from tape_recorder.merge import merge_regions
 from tape_recorder.quality.certificate import Certificate
@@ -18,6 +20,8 @@ from tape_recorder.quality.certify import certify_tree
 from tape_recorder.recorder import record as record_async
 from tape_recorder.replay import replay_files
 from tape_recorder.settings import Settings, load_settings
+from tape_recorder.timeutil import wall_clock_ns
+from tape_recorder.transport import HttpxFetcher
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, help=__doc__)
 
@@ -67,6 +71,37 @@ def record(
         if duration_s is not None:
             loop.call_later(duration_s, stop.set)
         await record_async(settings, out_root, venue, stop, raw_log)
+
+    asyncio.run(main())
+
+
+@app.command()
+def backfill(
+    venue: Annotated[str, typer.Option(help="Venue to backfill (moex-tbank, moex-algopack).")],
+    start: Annotated[str, typer.Option("--from", help="First trade date, YYYY-MM-DD.")],
+    end: Annotated[str, typer.Option("--to", help="Last trade date, YYYY-MM-DD.")],
+    out: Annotated[str | None, typer.Option(help="Output tape root.")] = None,
+    config: ConfigOpt = None,
+) -> None:
+    """Fetch historical candles (and Super Candles) into the tape."""
+    settings = _settings(config)
+    if settings.venues[venue].token_required and settings.venues[venue].token() is None:
+        raise typer.BadParameter(f"{venue} needs its token in ${settings.venues[venue].token_env}")
+
+    async def main() -> None:
+        async with httpx.AsyncClient(
+            timeout=settings.http.timeout_s, headers={"User-Agent": settings.http.user_agent}
+        ) as client:
+            stats = await backfill_async(
+                settings,
+                venue,
+                date.fromisoformat(start),
+                date.fromisoformat(end),
+                _root(settings, out, settings.tape_root),
+                HttpxFetcher(client),
+                wall_clock_ns,
+            )
+        typer.echo(f"requests={stats.requests} rows={stats.rows} failures={stats.failures}")
 
     asyncio.run(main())
 

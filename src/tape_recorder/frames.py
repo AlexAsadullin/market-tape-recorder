@@ -3,7 +3,7 @@
 A frame is the unit of capture, replay and fixtures. Fixture files and the optional raw log share
 one JSON shape, so anything recorded can be replayed through the same adapters offline::
 
-    {"venue": "okx", "frames": [{"ts_local": 1761000000000000000, "connection": "c1",
+    {"venue": "moex-tbank", "frames": [{"ts_local": 1761000000000000000, "connection": "c1",
                                  "source": "ws", "payload": {...} | "text"}, ...]}
 
 ``recv_ms`` may be used instead of ``ts_local`` in hand-made fixtures.
@@ -21,33 +21,49 @@ import orjson
 from tape_recorder.timeutil import NS_PER_MS
 
 FrameSource = Literal["ws", "rest"]
+HttpMethod = Literal["GET", "POST"]
 
 
 @dataclass(frozen=True, slots=True)
 class RestRequest:
-    """A REST call an adapter wants made; ``tag`` tells the adapter how to parse the reply."""
+    """A REST call an adapter wants made; ``tag`` tells the adapter how to parse the reply.
+
+    ``body`` is a JSON text sent with ``POST`` (the T-Bank REST proxy takes every call as a POST).
+    Headers are never serialised, because they carry tokens.
+    """
 
     url: str
     tag: str
     native_symbol: str
     params: tuple[tuple[str, str], ...] = ()
     headers: tuple[tuple[str, str], ...] = field(default=(), repr=False)
+    method: HttpMethod = "GET"
+    body: str | None = None
 
     def to_json(self) -> dict[str, Any]:
-        return {
+        out: dict[str, Any] = {
             "url": self.url,
             "tag": self.tag,
             "native_symbol": self.native_symbol,
             "params": [list(p) for p in self.params],
         }
+        if self.method != "GET":
+            out["method"] = self.method
+        if self.body is not None:
+            out["body"] = self.body
+        return out
 
     @classmethod
     def from_json(cls, data: dict[str, Any]) -> RestRequest:
+        method: HttpMethod = "POST" if data.get("method") == "POST" else "GET"
+        body = data.get("body")
         return cls(
             url=str(data["url"]),
             tag=str(data["tag"]),
             native_symbol=str(data["native_symbol"]),
             params=tuple((str(k), str(v)) for k, v in data.get("params", [])),
+            method=method,
+            body=body if body is None else _payload_text(body),
         )
 
 

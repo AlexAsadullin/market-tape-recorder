@@ -118,6 +118,11 @@ class TapeWriter:
             # inspection but never move them into the tape tree.
             log.warning("staging_orphans", count=len(orphans), staging=str(self.staging))
 
+    @property
+    def buffered_rows(self) -> int:
+        """Rows accepted but not yet written to a Parquet row group (the writer's backlog)."""
+        return sum(len(b.records) for b in self._buffers.values())
+
     def write(self, records: Sequence[Record]) -> None:
         now = self._clock()
         for r in records:

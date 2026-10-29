@@ -1,4 +1,4 @@
-.PHONY: setup lint format typecheck test test-live reproduce report report-smoke record
+.PHONY: setup lint format typecheck test test-live reproduce record backfill
 
 UV ?= uv
 
@@ -7,12 +7,12 @@ setup:
 	$(UV) sync --frozen
 
 lint:
-	$(UV) run ruff check src tests experiments
-	$(UV) run ruff format --check src tests experiments
+	$(UV) run ruff check src tests
+	$(UV) run ruff format --check src tests
 
 format:
-	$(UV) run ruff format src tests experiments
-	$(UV) run ruff check --fix src tests experiments
+	$(UV) run ruff format src tests
+	$(UV) run ruff check --fix src tests
 
 typecheck:
 	$(UV) run mypy
@@ -26,12 +26,9 @@ test-live:
 reproduce:
 	$(UV) run python -m tape_recorder.demo
 
-report:
-	$(UV) sync --frozen --group bench
-	$(UV) run --group bench python -m experiments
-
-report-smoke:
-	$(UV) run --group bench python -m experiments --smoke
-
 record:
 	$(UV) run tape record
+
+# Example: make backfill VENUE=moex-tbank FROM=2026-10-01 TO=2026-10-28
+backfill:
+	$(UV) run tape backfill --venue $(VENUE) --from $(FROM) --to $(TO)

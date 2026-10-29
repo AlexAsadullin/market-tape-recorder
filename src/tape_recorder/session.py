@@ -128,7 +128,12 @@ class WsVenueSession:
             conn_id = self.new_id()
             try:
                 ws = await asyncio.wait_for(
-                    self.connector(self.adapter.ws_url()), self.settings.connect_timeout_s
+                    self.connector(
+                        self.adapter.ws_url(),
+                        self.adapter.ws_headers(),
+                        self.adapter.ws_subprotocols(),
+                    ),
+                    self.settings.connect_timeout_s,
                 )
                 for msg in self.adapter.subscribe_messages():
                     await ws.send(msg)
@@ -290,7 +295,7 @@ class WsVenueSession:
 
 
 class PollingVenueSession:
-    """REST polling loop (MOEX ISS); a new connection id is used after every failure."""
+    """REST polling loop (MOEX ISS, AlgoPack); a new connection id is used after every failure."""
 
     def __init__(
         self,

@@ -46,76 +46,76 @@ http:
   user_agent: tradeq-market-tape-recorder/0.1
 
 venues:
-  binance:
-    adapter: binance_spot
-    ws_url: wss://stream.binance.com:9443/stream
-    rest_url: https://api.binance.com
-    snapshot_path: /api/v3/depth
-    snapshot_limit: 1000
-    depth_interval: 100ms
-    book_sequenced: true
-    trade_ids_consecutive: true
-    channels: [trades, book_delta, book_snapshot]
+  # MOEX only (spec revision 2026-10-29). Venue names identify the capture source; see
+  # ../docs/moex-sources.md. Lot sizes and ticks are checked against the exchange at runtime
+  # (T-Bank ShareBy, ISS securities table) and a mismatch is logged.
+  moex-tbank:
+    adapter: tbank
+    ws_url: wss://invest-public-api.tbank.ru/ws/tinkoff.public.invest.api.contract.v1.MarketDataStreamService/MarketDataStream
+    rest_url: https://invest-public-api.tbank.ru/rest/
+    rest_service_prefix: tinkoff.public.invest.api.contract.v1
+    token_env: TBANK_TOKEN
+    token_required: true
+    ws_subprotocol: json
+    book_depth: 20
+    candle_interval: SUBSCRIPTION_INTERVAL_ONE_MINUTE
+    timezone: Europe/Moscow
+    session_window: {start: "06:50", end: "23:50", timezone: Europe/Moscow}
+    channels: [trades, book_snapshot, candles, trading_status]
     symbols:
-      BTCUSDT: {symbol: BTC-USDT-SPOT}
-      ETHUSDT: {symbol: ETH-USDT-SPOT}
-  binance-usdm:
-    adapter: binance_usdm
-    ws_url: wss://fstream.binance.com/stream
-    rest_url: https://fapi.binance.com
-    snapshot_path: /fapi/v1/depth
-    snapshot_limit: 1000
-    depth_interval: 100ms
-    mark_price_interval: 1s
-    book_sequenced: true
-    trade_ids_consecutive: true   # aggTrade ids are consecutive per symbol
-    channels: [trades, book_delta, book_snapshot, funding, liquidations]
-    symbols:
-      BTCUSDT: {symbol: BTC-USDT-PERP}
-  bybit:
-    adapter: bybit
-    ws_url: wss://stream.bybit.com/v5/public/linear
-    book_depth: 50
-    heartbeat_interval_s: 20.0
-    heartbeat_payload: '{"op":"ping"}'
-    book_sequenced: true
-    channels: [trades, book_delta, book_snapshot, funding, liquidations, open_interest]
-    symbols:
-      BTCUSDT: {symbol: BTC-USDT-PERP}
-  okx:
-    adapter: okx
-    ws_url: wss://ws.okx.com:8443/ws/v5/public
-    heartbeat_interval_s: 25.0
-    heartbeat_payload: ping
-    book_sequenced: true
-    channels: [trades, book_delta, book_snapshot, funding, liquidations, open_interest]
-    symbols:
-      BTC-USDT-SWAP: {symbol: BTC-USDT-PERP, contract_size: 0.01}
-  hyperliquid:
-    adapter: hyperliquid
-    ws_url: wss://api.hyperliquid.xyz/ws
-    heartbeat_interval_s: 30.0
-    heartbeat_payload: '{"method":"ping"}'
-    channels: [trades, book_snapshot, funding, open_interest]
-    symbols:
-      BTC: {symbol: BTC-USD-PERP}
-  moex:
+      SBER: {symbol: SBER-RUB-TQBR, contract_size: 1, tick: 0.01, board: TQBR}
+      GAZP: {symbol: GAZP-RUB-TQBR, contract_size: 10, tick: 0.01, board: TQBR}
+      LKOH: {symbol: LKOH-RUB-TQBR, contract_size: 1, tick: 0.5, board: TQBR}
+  moex-algopack:
     adapter: moex_iss
-    rest_url: https://iss.moex.com/iss
-    algopack_url: https://apim.moex.com/iss  # used when TAPE_VENUES__MOEX__API_KEY is set
+    rest_url: https://apim.moex.com
+    token_env: ALGOPACK_TOKEN
+    token_required: true
+    poll_interval_s: 2.0
+    timezone: Europe/Moscow
+    candle_interval: "1"
+    session_window: {start: "06:50", end: "23:50", timezone: Europe/Moscow}
+    channels: [trades, book_snapshot, candles, trading_status, tradestats, orderstats, obstats]
+    rest_paths: &iss_paths
+      trades: /iss/engines/{engine}/markets/{market}/boards/{board}/securities/{secid}/trades.json
+      orderbook: /iss/engines/{engine}/markets/{market}/boards/{board}/securities/{secid}/orderbook.json
+      candles: /iss/engines/{engine}/markets/{market}/boards/{board}/securities/{secid}/candles.json
+      marketdata: /iss/engines/{engine}/markets/{market}/boards/{board}/securities/{secid}.json
+      tradestats: /iss/datashop/algopack/eq/tradestats/{secid}.json
+      orderstats: /iss/datashop/algopack/eq/orderstats/{secid}.json
+      obstats: /iss/datashop/algopack/eq/obstats/{secid}.json
+    rest_params: &iss_params
+      trades: {"iss.meta": "off", "iss.only": "trades", "limit": "5000"}
+      orderbook: {"iss.meta": "off", "iss.only": "orderbook"}
+      candles: {"iss.meta": "off", "iss.only": "candles"}
+      marketdata: {"iss.meta": "off", "iss.only": "securities,marketdata"}
+      tradestats: {"iss.meta": "off", "latest": "1"}
+      orderstats: {"iss.meta": "off", "latest": "1"}
+      obstats: {"iss.meta": "off", "latest": "1"}
+    poll_every:          # in polling rounds of poll_interval_s
+      candles: 15        # 30 s
+      marketdata: 15
+      tradestats: 30     # 60 s; bars are published every 5 minutes
+      orderstats: 30
+      obstats: 30
+    symbols: &moex_symbols
+      SBER: {symbol: SBER-RUB-TQBR, contract_size: 1, tick: 0.01, engine: stock, market: shares, board: TQBR}
+      GAZP: {symbol: GAZP-RUB-TQBR, contract_size: 10, tick: 0.01, engine: stock, market: shares, board: TQBR}
+      LKOH: {symbol: LKOH-RUB-TQBR, contract_size: 1, tick: 0.5, engine: stock, market: shares, board: TQBR}
+  moex-iss:
+    # Public ISS without a token: 15-minute delayed trades and candles, no order book.
+    adapter: moex_iss
+    enabled: false
+    rest_url: https://iss.moex.com
     poll_interval_s: 5.0
     timezone: Europe/Moscow
-    channels: [trades, book_snapshot]
-    rest_paths:
-      trades: /engines/{engine}/markets/{market}/boards/{board}/securities/{secid}/trades.json
-      orderbook: /engines/{engine}/markets/{market}/boards/{board}/securities/{secid}/orderbook.json
-    rest_params:
-      trades: {"iss.meta": "off", "iss.only": "trades", "next_trade": "1", "limit": "5000"}
-      orderbook: {"iss.meta": "off", "iss.only": "orderbook"}
+    candle_interval: "1"
     session_window: {start: "06:50", end: "23:50", timezone: Europe/Moscow}
-    symbols:
-      SBER: {symbol: SBER-RUB-TQBR, contract_size: 10, engine: stock, market: shares, board: TQBR}
-      GAZP: {symbol: GAZP-RUB-TQBR, contract_size: 10, engine: stock, market: shares, board: TQBR}
+    channels: [trades, candles, trading_status]
+    rest_paths: *iss_paths
+    rest_params: *iss_params
+    poll_every: {candles: 6, marketdata: 6}
+    symbols: *moex_symbols
 
 quality:
   coverage_window: day        # "day" = venue session window; "observed" = first..last message
@@ -124,7 +124,7 @@ quality:
   price_tolerance: 1.0e-9
   size_rel_tolerance: 1.0e-9
   silence_s:
-    book_delta: 10.0
+    book_snapshot: 120.0      # T-Bank pushes a book only when it changes; quiet names go silent
   checks:
     messages:                     {threshold: 1,    direction: min, severity: hard}
     sequence_gaps:                {threshold: 0,    direction: max, severity: soft}
@@ -140,10 +140,17 @@ quality:
     coverage_ratio:               {threshold: 0.99, direction: min, severity: soft}
     coverage_ratio_floor:         {threshold: 0.5,  direction: min, severity: hard}
   venue_overrides:
-    moex:
-      # ISS stamps trades to the second and is polled, so skew is dominated by the poll interval.
-      clock_skew_p50_abs_ms:      {threshold: 15000, direction: max, severity: soft}
+    moex-tbank:
+      # Books are pushed only on change, so sub-second silence is normal and not a lost handover.
+      resubscription_gap_ms_max:  {threshold: 1000, direction: max, severity: soft}
+    moex-algopack:
+      # ISS stamps trades and books to the second and is polled, so skew follows the poll interval.
+      clock_skew_p50_abs_ms:      {threshold: 5000, direction: max, severity: soft}
       resubscription_gap_ms_max:  {threshold: 15000, direction: max, severity: soft}
+    moex-iss:
+      # Public ISS data is delayed by 15 minutes by design.
+      clock_skew_p50_abs_ms:      {threshold: 960000, direction: max, severity: soft}
+      resubscription_gap_ms_max:  {threshold: 30000, direction: max, severity: soft}
 
 merge:
   primary_region: null        # rows that cannot be matched across regions come from this region
@@ -151,13 +158,9 @@ merge:
 
 archive:
   universe:
-    - {venue: binance, symbol: BTC-USDT-SPOT}
-    - {venue: binance-usdm, symbol: BTC-USDT-PERP}
-    - {venue: bybit, symbol: BTC-USDT-PERP}
-    - {venue: okx, symbol: BTC-USDT-PERP}
-    - {venue: hyperliquid, symbol: BTC-USD-PERP}
-    - {venue: moex, symbol: SBER-RUB-TQBR}
-  channels: [trades, book_delta, book_snapshot, funding, liquidations, open_interest]
+    - {venue: moex-tbank, symbol: SBER-RUB-TQBR}
+    - {venue: moex-algopack, symbol: SBER-RUB-TQBR}
+  channels: [trades, book_snapshot, candles, trading_status, tradestats, orderstats, obstats]
   name_template: "tradeq-tape-{month}.tar"
   report_name: QUALITY.md
   manifest_name: manifest.json
@@ -168,6 +171,17 @@ service:
   port: 8602
   stale_after_s: 30.0
 
+backfill:
+  min_request_interval_s: 0.2   # T-Bank market data allows 600 unary calls per minute
+  iss_page_rows: 500            # ISS candles page size; a full page is requested again with start=
+
+priority:
+  nice: 0                    # negative values raise priority but need privileges
+  probe_interval_s: 0.5
+  lag_limit_ms: 200.0        # loop later than this -> pressure: high on /v1/load
+  buffered_limit_rows: 200000
+  window: 120                # lag samples kept (one minute at 0.5 s)
+
 logging:
   level: INFO
   json_output: false
@@ -175,17 +189,18 @@ logging:
 demo:
   fixtures_dir: tests/fixtures/venues   # relative to the repository root
   seed: 11
+  # The two "regions" are two recorder hosts capturing the same MOEX sources.
   regions:
-    eu:
-      latency_ms: 6
-      jitter_ms: 2
+    msk:
+      latency_ms: 2
+      jitter_ms: 1
       faults:
-        - {kind: drop, venue: binance, index: 6}             # lost depth update -> sequence gap
-        - {kind: resubscribe, venue: okx, index: 8, gap_ms: 1500}  # blind re-subscription
-        - {kind: duplicate, venue: bybit, index: 4, delay_ms: 3}   # redundant copy (deduped)
-    tokyo:
-      latency_ms: 38
+        - {kind: duplicate, venue: moex-tbank, index: 4, delay_ms: 3}     # redundant copy (deduped)
+        - {kind: resubscribe, venue: moex-tbank, index: 7, gap_ms: 1500}   # blind re-subscription
+        - {kind: drop, venue: moex-algopack, index: 2}                     # lost poll; the TRADENO cursor recovers it
+    eu:
+      latency_ms: 31
       jitter_ms: 4
       faults:
-        - {kind: cross, venue: bybit, index: 5}              # corrupted level crosses the book
-        - {kind: reorder, venue: binance-usdm, index: 4}     # out-of-order arrival
+        - {kind: cross, venue: moex-tbank, index: 5}                       # corrupted level crosses the book
+        - {kind: cross, venue: moex-algopack, index: 3}                    # corrupted ISS book row

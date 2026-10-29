@@ -1,7 +1,7 @@
 # HANDOVER: market-tape-recorder (Tradeq I1)
 
-Last updated 2026-10-22 by the orchestrating session, from the transcript of the agent that stopped at the
-session rate limit.
+Last updated 2026-10-29 by the session that did the MOEX pivot (see "MOEX pivot" below; it overrides the
+older sections wherever they disagree).
 
 ## Goal
 
@@ -77,3 +77,50 @@ Updated 2026-10-23 by the subagent that finished the repo.
 8. The rotation experiment runs on wall-clock time, so do not run it while another CPU-heavy job runs. Its numbers vary slightly between runs, and the detection and regions numbers are deterministic.
 9. Certify synthetic streams with `quality.coverage_window: observed`, because a full-day window marks a stream of less than a minute as uncovered. The runner sets this in report_settings().
 10. A merge cannot recover a message that both regions lost. 30 of 100 merged days stayed degraded, because a drop in one region fell inside the outage of the other.
+
+## MOEX pivot (2026-10-29)
+
+The user narrowed the platform to MOEX only and asked for code written from the vendor docs, because tokens
+come later (T-Bank first, AlgoPack later). Source facts: `../docs/moex-sources.md`; T-Invest protobuf
+contracts: `../docs/tinvest-contracts/`. Brief: `../prompts/02-market-tape-recorder.md`, revision 2.
+
+What changed:
+1. Removed: Binance, Bybit, OKX and Hyperliquid adapters, their fixtures and live tests, `experiments/`,
+   `config/report.yaml`, the `bench` group (cryptofeed) and `make report`. All of it is in git history before
+   this commit; `docs/report.md` carries an "outdated" banner pointing at commit `e845dbc`.
+2. Venues are named by source: `moex-tbank` (adapter `tbank`), `moex-algopack` and `moex-iss` (adapter
+   `moex_iss`). Tokens come only from the env variable named by `token_env` (`TBANK_TOKEN`,
+   `ALGOPACK_TOKEN`); `token_required` venues are skipped by `enabled_venues()` when the token is missing.
+   `load_settings` loads `.env` into the environment for that reason.
+3. `adapters/tbank.py`: WebSocket `MarketDataStream` (path confirmed in the AsyncAPI spec of the investAPI
+   repo), bearer token in the handshake, subprotocol `json`; subscribes books, trades, 1-minute candles and
+   trading status; resolves symbols through `InstrumentsService/ShareBy` (REST POST, tag `share`, passes through
+   the pipeline so the raw log keeps it); parses camelCase and snake_case alike (`snake_keys`). Trades have no
+   id, so the dedup key is the full content.
+4. `adapters/moex.py`: trades (TRADENO cursor), 20-level book (SEQNUM), candles (cursor on `begin`), marketdata
+   (TRADINGSTATUS, lot-size check), Super Candles with `latest=1`; `poll_every` per tag.
+5. Schema: channels `candles`, `trading_status`, `tradestats`, `orderstats`, `obstats` (`StatsBar` record whose
+   channel is a field), `trades.trading_session`. Crypto channels stay in the schema so old tapes load.
+6. Transport: `RestRequest.method/body` (POST JSON), WebSocket headers and subprotocols.
+7. Priority: `priority.*` settings, `apply_priority`, event-loop lag probe, `GET /v1/load` (`pressure`), writer
+   `buffered_rows`.
+8. `history.py` + `tape backfill`: T-Bank `GetCandles` per day, AlgoPack candles with `start=` paging and Super
+   Candles per day; deduplicated within a run.
+9. Certificate: clock skew only over event channels (`SKEW_CHANNELS`), because bar times lag arrival; T-Bank
+   re-subscription threshold 1000 ms (books are pushed only on change).
+
+State: `make lint typecheck test` clean, 92 tests (3 live deselected), coverage 91%; `make reproduce` works.
+No live run has happened.
+
+Open items, in order: first live run with `TBANK_TOKEN` (`make test-live`), compare real payloads with the
+fixtures; cross-source certificate check; ISS+ STOMP order books; a MOEX version of the report.
+
+Mistakes and lessons of this pass:
+1. pydantic-settings env names cannot address dict keys with a dash (`moex-tbank`), which is why tokens use
+   `token_env` instead of `TAPE_VENUES__...__API_KEY`.
+2. A `.env` read only by pydantic never reaches `os.environ`; anything read with `os.environ` needs
+   `load_dotenv`. Tests then must chdir away from the repo and unset the token variables.
+3. The T-Bank docs site uses a Russian CA, which the built-in browser and WebFetch refuse; Chrome works, and the
+   GitHub repo RussianInvestments/investAPI has the contracts and the AsyncAPI spec in plain files.
+4. ISS candle `volume` is already in shares (value / price = volume in the docs example), unlike order-book and
+   trade quantities, which are lots.

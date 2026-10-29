@@ -3,9 +3,11 @@
 Each channel has a frozen record dataclass (what adapters emit) and an Arrow schema (what lands in
 Parquet). Prices and sizes are float64: the tape is an analytics artefact, not an accounting ledger.
 
-Optional extensions to contract 6.2 (nullable, documented in the README):
-``book_delta.first_seq`` (venue's first update id in the message, Binance ``U``/Bybit ``u``) and
-``trades.buyer``/``trades.seller`` (on-chain wallet addresses, Hyperliquid).
+Contract 6.2 revision 2 (MOEX) adds the channels ``candles``, ``trading_status`` and the AlgoPack
+Super Candles ``tradestats``, ``orderstats`` and ``obstats``, and the nullable trade column
+``trading_session``. The crypto channels (``funding``, ``liquidations``, ``open_interest``) and the
+v0.1 extensions ``book_delta.first_seq`` and ``trades.buyer``/``seller`` stay readable, so tapes
+written before the MOEX pivot still load.
 """
 
 from __future__ import annotations
@@ -27,6 +29,34 @@ class Channel(StrEnum):
     FUNDING = "funding"
     LIQUIDATIONS = "liquidations"
     OPEN_INTEREST = "open_interest"
+    CANDLES = "candles"
+    TRADING_STATUS = "trading_status"
+    TRADESTATS = "tradestats"
+    ORDERSTATS = "orderstats"
+    OBSTATS = "obstats"
+
+
+STATS_CHANNELS: tuple[Channel, ...] = (Channel.TRADESTATS, Channel.ORDERSTATS, Channel.OBSTATS)
+
+# AlgoPack Super Candles columns per channel, as documented (moexalgo.github.io/docs/api).
+STATS_COLUMNS: dict[Channel, tuple[str, ...]] = {
+    Channel.TRADESTATS: (
+        "pr_open", "pr_high", "pr_low", "pr_close", "pr_std", "vol", "val", "trades", "pr_vwap",
+        "pr_change", "trades_b", "trades_s", "val_b", "val_s", "vol_b", "vol_s", "disb",
+        "pr_vwap_b", "pr_vwap_s",
+    ),
+    Channel.ORDERSTATS: (
+        "put_orders_b", "put_orders_s", "put_val_b", "put_val_s", "put_vol_b", "put_vol_s",
+        "put_vwap_b", "put_vwap_s", "put_vol", "put_val", "put_orders", "cancel_orders_b",
+        "cancel_orders_s", "cancel_val_b", "cancel_val_s", "cancel_vol_b", "cancel_vol_s",
+        "cancel_vwap_b", "cancel_vwap_s", "cancel_vol", "cancel_val", "cancel_orders",
+    ),
+    Channel.OBSTATS: (
+        "spread_bbo", "spread_lv10", "spread_1mio", "levels_b", "levels_s", "vol_b", "vol_s",
+        "val_b", "val_s", "imbalance_vol_bbo", "imbalance_val_bbo", "imbalance_vol",
+        "imbalance_val", "vwap_b", "vwap_s", "vwap_b_1mio", "vwap_s_1mio",
+    ),
+}  # fmt: skip
 
 
 class Side(StrEnum):
@@ -59,6 +89,7 @@ class Trade(_Common):
     side: str
     buyer: str | None = None
     seller: str | None = None
+    trading_session: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -106,7 +137,62 @@ class OpenInterest(_Common):
     open_interest_value: float | None
 
 
-Record = Trade | BookDelta | BookSnapshotLevel | Funding | Liquidation | OpenInterest
+@dataclass(frozen=True, slots=True)
+class Candle(_Common):
+    """An OHLCV bar; ``ts_exchange`` is the bar open, ``ts_close`` its last nanosecond."""
+
+    channel: ClassVar[Channel] = Channel.CANDLES
+    interval: str
+    ts_open: int
+    ts_close: int
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: float
+    value: float | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class TradingStatus(_Common):
+    channel: ClassVar[Channel] = Channel.TRADING_STATUS
+    status: str
+    limit_order_allowed: bool | None = None
+    market_order_allowed: bool | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class StatsBar(_Common):
+    """One AlgoPack Super Candle (5-minute bar); the metric names are in :data:`STATS_COLUMNS`.
+
+    ``ts_exchange`` is the bar time stamped by the exchange (``tradedate`` + ``tradetime``) and
+    ``ts_published`` the publication time (``SYSTIME``), which is when the bar became knowable.
+    Unlike the other records the channel is a field, because three channels share this shape.
+    """
+
+    stats_channel: Channel
+    ts_published: int | None
+    values: tuple[tuple[str, float | None], ...]
+
+    @property
+    def channel(self) -> Channel:
+        return self.stats_channel
+
+    def value(self, name: str) -> float | None:
+        return dict(self.values).get(name)
+
+
+Record = (
+    Trade
+    | BookDelta
+    | BookSnapshotLevel
+    | Funding
+    | Liquidation
+    | OpenInterest
+    | Candle
+    | TradingStatus
+    | StatsBar
+)
 
 RECORD_TYPES: dict[Channel, type[Record]] = {
     Channel.TRADES: Trade,
@@ -115,6 +201,9 @@ RECORD_TYPES: dict[Channel, type[Record]] = {
     Channel.FUNDING: Funding,
     Channel.LIQUIDATIONS: Liquidation,
     Channel.OPEN_INTEREST: OpenInterest,
+    Channel.CANDLES: Candle,
+    Channel.TRADING_STATUS: TradingStatus,
+    **dict.fromkeys(STATS_CHANNELS, StatsBar),
 }
 
 _COMMON_FIELDS: list[pa.Field] = [
@@ -135,6 +224,7 @@ _CHANNEL_FIELDS: dict[Channel, list[pa.Field]] = {
         pa.field("side", pa.string(), nullable=False),
         pa.field("buyer", pa.string(), nullable=True),
         pa.field("seller", pa.string(), nullable=True),
+        pa.field("trading_session", pa.string(), nullable=True),
     ],
     Channel.BOOK_DELTA: [
         pa.field("side", pa.string(), nullable=False),
@@ -166,6 +256,29 @@ _CHANNEL_FIELDS: dict[Channel, list[pa.Field]] = {
         pa.field("open_interest", pa.float64(), nullable=False),
         pa.field("open_interest_value", pa.float64(), nullable=True),
     ],
+    Channel.CANDLES: [
+        pa.field("interval", pa.string(), nullable=False),
+        pa.field("ts_open", pa.int64(), nullable=False),
+        pa.field("ts_close", pa.int64(), nullable=False),
+        pa.field("open", pa.float64(), nullable=False),
+        pa.field("high", pa.float64(), nullable=False),
+        pa.field("low", pa.float64(), nullable=False),
+        pa.field("close", pa.float64(), nullable=False),
+        pa.field("volume", pa.float64(), nullable=False),
+        pa.field("value", pa.float64(), nullable=True),
+    ],
+    Channel.TRADING_STATUS: [
+        pa.field("status", pa.string(), nullable=False),
+        pa.field("limit_order_allowed", pa.bool_(), nullable=True),
+        pa.field("market_order_allowed", pa.bool_(), nullable=True),
+    ],
+    **{
+        channel: [
+            pa.field("ts_published", pa.int64(), nullable=True),
+            *(pa.field(name, pa.float64(), nullable=True) for name in names),
+        ]
+        for channel, names in STATS_COLUMNS.items()
+    },
 }
 
 SCHEMAS: dict[Channel, pa.Schema] = {
@@ -176,14 +289,32 @@ SCHEMAS: dict[Channel, pa.Schema] = {
 }
 
 
+def _column_value(record: Record, name: str) -> object:
+    if isinstance(record, StatsBar) and not hasattr(record, name):
+        return record.value(name)
+    return getattr(record, name)
+
+
 def records_to_table(channel: Channel, records: Sequence[Record]) -> pa.Table:
     """Columnar conversion of same-channel records into an Arrow table with the contract schema."""
     schema = SCHEMAS[channel]
-    columns = {name: [getattr(r, name) for r in records] for name in schema.names}
+    columns = {name: [_column_value(r, name) for r in records] for name in schema.names}
     return pa.Table.from_pydict(columns, schema=schema)
 
 
 def table_to_records(channel: Channel, table: pa.Table) -> list[Record]:
     """Inverse of :func:`records_to_table` (used by tests and small-scale tooling)."""
+    if channel in STATS_CHANNELS:
+        common = [f.name for f in _COMMON_FIELDS]
+        names = STATS_COLUMNS[channel]
+        return [
+            StatsBar(
+                **{k: row[k] for k in common},
+                stats_channel=channel,
+                ts_published=row["ts_published"],
+                values=tuple((n, row[n]) for n in names),
+            )
+            for row in table.to_pylist()
+        ]
     cls = RECORD_TYPES[channel]
     return [cls(**row) for row in table.to_pylist()]

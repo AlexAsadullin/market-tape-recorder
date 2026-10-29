@@ -12,6 +12,7 @@ from contextvars import ContextVar
 from pathlib import Path
 from typing import Any, Literal
 
+from dotenv import load_dotenv
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import (
     BaseSettings,
@@ -85,13 +86,20 @@ class HttpSettings(_Model):
 
 
 class SymbolSettings(_Model):
-    """One instrument; ``contract_size`` converts venue units (contracts, lots) to base units."""
+    """One instrument; ``contract_size`` is the lot size, which converts lots to shares.
+
+    ``instrument_id`` is the T-Bank identifier (``<ticker>_<class_code>``, a FIGI or a uid);
+    ``instrument_uid`` lets the T-Bank adapter map stream messages that carry only the uid.
+    """
 
     symbol: str
     contract_size: float = Field(default=1.0, gt=0)
+    tick: float | None = Field(default=None, gt=0)
     engine: str | None = None
     market: str | None = None
     board: str | None = None
+    instrument_id: str | None = None
+    instrument_uid: str | None = None
 
 
 class SessionWindow(_Model):
@@ -103,12 +111,20 @@ class SessionWindow(_Model):
 
 
 class VenueSettings(_Model):
-    adapter: Literal["binance_spot", "binance_usdm", "bybit", "okx", "hyperliquid", "moex_iss"]
+    """One capture feed. MOEX venues are named by source: ``moex-tbank``, ``moex-algopack``, ...
+
+    The token is never in the YAML: ``token_env`` names the environment variable that holds it.
+    ``poll_every`` makes some REST requests run only every N polling rounds (for example the
+    5-minute Super Candles while the order book is polled every few seconds).
+    """
+
+    adapter: Literal["moex_iss", "tbank"]
     enabled: bool = True
     ws_url: str | None = None
     rest_url: str | None = None
-    algopack_url: str | None = None
-    api_key: SecretStr | None = None
+    token_env: str | None = None
+    token_required: bool = False
+    ws_subprotocol: str | None = None
     channels: list[Channel]
     symbols: dict[str, SymbolSettings]
     book_depth: int | None = None
@@ -125,6 +141,16 @@ class VenueSettings(_Model):
     rest_params: dict[str, dict[str, str]] = Field(default_factory=dict)
     timezone: str | None = None
     session_window: SessionWindow | None = None
+    poll_every: dict[str, int] = Field(default_factory=dict)
+    candle_interval: str | None = None
+    rest_service_prefix: str | None = None
+
+    def token(self) -> SecretStr | None:
+        """The API token from ``token_env``; ``None`` when the variable is unset or empty."""
+        if self.token_env is None:
+            return None
+        value = os.environ.get(self.token_env, "").strip()
+        return SecretStr(value) if value else None
 
 
 class CheckSpec(_Model):
@@ -179,6 +205,28 @@ class ServiceSettings(_Model):
     stale_after_s: float = Field(gt=0)
 
 
+class BackfillSettings(_Model):
+    """History requests are paced to stay inside the documented API limits."""
+
+    min_request_interval_s: float = Field(ge=0)
+    iss_page_rows: int = Field(gt=0)
+
+
+class PrioritySettings(_Model):
+    """Collection comes first on the host (spec section 5.4).
+
+    ``nice`` is applied to the recorder process at start (negative values need privileges, so 0
+    keeps the default); other jobs are expected to run with a positive nice and to watch
+    ``/v1/load``. ``probe_interval_s`` is how often the event-loop lag is sampled.
+    """
+
+    nice: int = Field(ge=-20, le=19)
+    probe_interval_s: float = Field(gt=0)
+    lag_limit_ms: float = Field(gt=0)
+    buffered_limit_rows: int = Field(gt=0)
+    window: int = Field(gt=0)
+
+
 class LoggingSettings(_Model):
     level: str
     json_output: bool
@@ -229,6 +277,8 @@ class Settings(BaseSettings):
     merge: MergeSettings
     archive: ArchiveSettings
     service: ServiceSettings
+    priority: PrioritySettings
+    backfill: BackfillSettings
     logging: LoggingSettings
     demo: DemoSettings
 
@@ -264,11 +314,21 @@ class Settings(BaseSettings):
         return self.data_path(self.paths.captures, region)
 
     def enabled_venues(self) -> dict[str, VenueSettings]:
-        return {name: v for name, v in self.venues.items() if v.enabled}
+        """Enabled venues; a venue whose required token is missing is skipped, not started."""
+        return {
+            name: v
+            for name, v in self.venues.items()
+            if v.enabled and (not v.token_required or v.token() is not None)
+        }
 
 
 def load_settings(config_file: Path | None = None, **overrides: Any) -> Settings:
-    """Load settings from YAML (``TAPE_CONFIG_FILE`` or the repository default) plus env."""
+    """Load settings from YAML (``TAPE_CONFIG_FILE`` or the repository default) plus env.
+
+    ``.env`` is also loaded into the process environment (without overriding it), because API
+    tokens are read from the variable named by ``token_env``, not from a settings field.
+    """
+    load_dotenv(override=False)
     path = config_file or Path(os.environ.get(CONFIG_FILE_ENV, str(DEFAULT_CONFIG_FILE)))
     token = _yaml_file.set(path)
     try:

@@ -19,6 +19,10 @@ def data_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     root = tmp_path / "data"
     monkeypatch.setenv("TRADEQ_DATA_DIR", str(root))
     monkeypatch.delenv("TAPE_CONFIG_FILE", raising=False)
+    # Tests never see real tokens: no repository .env, and no inherited token variables.
+    monkeypatch.chdir(tmp_path)
+    for name in ("TBANK_TOKEN", "ALGOPACK_TOKEN"):
+        monkeypatch.delenv(name, raising=False)
     return root
 
 

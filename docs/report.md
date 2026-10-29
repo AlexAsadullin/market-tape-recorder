@@ -1,3 +1,7 @@
+> **Outdated (2026-10-29).** This report describes v0.1, which recorded crypto venues. After the MOEX pivot the
+> crypto adapters and the report experiments were removed; the numbers below reproduce from commit `e845dbc`.
+> A MOEX version of the experiments is on the roadmap in the README.
+
 # Proving completeness: evidence for the Market Tape Recorder quality layer
 
 The present report gives the evidence for the method choices of the Market Tape Recorder, which is project I1

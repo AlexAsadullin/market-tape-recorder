@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections import deque
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
 from pydantic import BaseModel
@@ -119,3 +120,49 @@ class StreamMonitor:
             )
             for name, v in sorted(self._venues.items())
         ]
+
+
+class LoadStatus(BaseModel):
+    """Recorder load, read by other jobs on the host so they back off before capture suffers.
+
+    ``pressure`` is ``high`` when the event loop is late by more than the configured limit (the
+    recorder cannot read sockets on time) or the writer's backlog exceeds its limit.
+    """
+
+    schema_version: str = SCHEMA_VERSION
+    loop_lag_ms_max: float
+    loop_lag_ms_last: float
+    buffered_rows: int
+    pressure: str
+    limits: dict[str, float]
+
+
+class LoadMonitor:
+    """Event-loop lag over a sliding window plus the writer backlog; see :class:`LoadStatus`."""
+
+    def __init__(
+        self,
+        buffered_rows: Callable[[], int],
+        lag_limit_ms: float,
+        buffered_limit_rows: int,
+        window: int,
+    ) -> None:
+        self._buffered = buffered_rows
+        self._lag_limit = lag_limit_ms
+        self._rows_limit = buffered_limit_rows
+        self._lags: deque[float] = deque(maxlen=window)
+
+    def observe_lag(self, lag_ns: int) -> None:
+        self._lags.append(max(0, lag_ns) / NS_PER_MS)
+
+    def status(self) -> LoadStatus:
+        lag_max = max(self._lags, default=0.0)
+        rows = self._buffered()
+        high = lag_max > self._lag_limit or rows > self._rows_limit
+        return LoadStatus(
+            loop_lag_ms_max=lag_max,
+            loop_lag_ms_last=self._lags[-1] if self._lags else 0.0,
+            buffered_rows=rows,
+            pressure="high" if high else "ok",
+            limits={"loop_lag_ms": self._lag_limit, "buffered_rows": float(self._rows_limit)},
+        )

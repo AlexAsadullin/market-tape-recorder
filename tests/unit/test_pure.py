@@ -13,19 +13,19 @@ from tape_recorder.sequencing import Continuity, DeltaIds, SequenceTracker, clas
 SEED_SETTINGS = settings(derandomize=True, max_examples=200, deadline=None)
 
 
-def test_binance_spot_alignment_after_snapshot() -> None:
+def test_first_id_alignment_after_snapshot() -> None:
     # Snapshot lastUpdateId = 100: first event must satisfy U <= 101 <= u.
     assert classify(100, DeltaIds(seq=100, prev_seq=None, first_seq=95)) is Continuity.STALE
     assert classify(100, DeltaIds(seq=104, prev_seq=None, first_seq=98)) is Continuity.CONTIGUOUS
     assert classify(100, DeltaIds(seq=104, prev_seq=None, first_seq=102)) is Continuity.GAP
 
 
-def test_prev_seq_chain_okx_and_usdm() -> None:
+def test_prev_seq_chain() -> None:
     assert classify(50, DeltaIds(seq=57, prev_seq=50, first_seq=None)) is Continuity.CONTIGUOUS
     assert classify(50, DeltaIds(seq=57, prev_seq=53, first_seq=51)) is Continuity.GAP
 
 
-def test_bybit_consecutive_ids() -> None:
+def test_consecutive_ids() -> None:
     assert classify(7, DeltaIds(seq=8, prev_seq=None, first_seq=8)) is Continuity.CONTIGUOUS
     assert classify(7, DeltaIds(seq=9, prev_seq=None, first_seq=9)) is Continuity.GAP
 

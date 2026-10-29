@@ -70,3 +70,16 @@ def window_bounds_ns(day: date, start_hhmm: str, end_hhmm: str, tz: str) -> tupl
 
 def local_date(ns: int, tz: str) -> date:
     return ns_to_datetime(ns).astimezone(ZoneInfo(tz)).date()
+
+
+def rfc3339_to_ns(text: str) -> int:
+    """Parse an RFC 3339 UTC time with up to nanosecond digits (``2026-10-29T07:00:00.123456789Z``).
+
+    ``datetime`` keeps only microseconds, so the fraction is parsed separately to keep every digit.
+    """
+    body = text.rstrip("Z")
+    if body.endswith("+00:00"):
+        body = body[: -len("+00:00")]
+    whole, _, frac = body.partition(".")
+    seconds = datetime_to_ns(datetime.fromisoformat(whole).replace(tzinfo=UTC))
+    return seconds + (int(frac.ljust(9, "0")[:9]) if frac else 0)

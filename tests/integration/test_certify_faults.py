@@ -15,11 +15,11 @@ from tape_recorder.replay import replay_frames
 from tape_recorder.settings import FaultSpec, Settings
 
 Frames = Callable[[str], list[Frame]]
-VENUES = ["binance", "binance-usdm", "bybit", "okx", "hyperliquid", "moex"]
+VENUES = ["moex-tbank", "moex-algopack"]
 
 
 def certify(settings: Settings, frames: list[Frame], root: Path) -> dict[str, Certificate]:
-    replay_frames(settings, frames, "eu", root)
+    replay_frames(settings, frames, "msk", root)
     return {c.venue: c for c, _ in certify_tree(settings, root, root / "certs")}
 
 
@@ -35,67 +35,46 @@ def test_clean_fixture_is_certified(
     assert cert.status == "certified", failed(cert)
     assert cert.coverage_ratio == pytest.approx(1.0)
     assert cert.schema_version == "1"
-    assert cert.capture_regions == ["eu"]
+    assert cert.capture_regions == ["msk"]
     path = tmp_path / "certs" / f"venue={venue}" / f"symbol={cert.symbol}" / "date=2026-10-20.json"
     assert read_certificate(path) == cert
 
 
-@pytest.mark.parametrize("venue", ["binance", "bybit", "okx"])
-def test_snapshots_match_reconstruction(
-    settings: Settings, venue_frames: Frames, tmp_path: Path, venue: str
-) -> None:
-    cert = certify(settings, venue_frames(venue), tmp_path)[venue]
-    assert cert.book.snapshots_compared >= 1 and cert.book.snapshot_mismatches == 0
-
-
-def test_dropped_delta_is_a_sequence_gap(
+def test_lost_poll_is_recovered_by_the_trade_cursor(
     settings: Settings, venue_frames: Frames, tmp_path: Path
 ) -> None:
-    frames = apply_fault(venue_frames("binance"), FaultSpec(kind="drop", venue="binance", index=6))
-    cert = certify(settings, frames, tmp_path)["binance"]
-    assert cert.check("sequence_gaps").value == 1
-    gap = next(g for g in cert.gaps if g.kind == "sequence")
-    assert gap.detail and gap.detail.startswith("resync")  # healed by the REST re-snapshot
-    assert cert.coverage_ratio < 0.99 and cert.status != "certified"
+    clean = certify(settings, venue_frames("moex-algopack"), tmp_path / "a")["moex-algopack"]
+    fault = FaultSpec(kind="drop", venue="moex-algopack", index=2)
+    frames = apply_fault(venue_frames("moex-algopack"), fault)
+    lost = certify(settings, frames, tmp_path / "b")["moex-algopack"]
+    # The next poll starts from the last TRADENO seen, so the dropped answer loses no trade.
+    assert lost.rows["trades"] == clean.rows["trades"]
+    assert lost.status == "certified"
 
 
-def test_dropped_trade_is_a_trade_id_gap(
+def test_trade_numbers_are_not_consecutive_on_moex(
     settings: Settings, venue_frames: Frames, tmp_path: Path
 ) -> None:
-    frames = apply_fault(venue_frames("binance"), FaultSpec(kind="drop", venue="binance", index=5))
-    cert = certify(settings, frames, tmp_path)["binance"]
-    assert cert.check("trade_id_gaps").value == 1
-    assert any(g.kind == "trade_id" for g in cert.gaps)
+    # MOEX TRADENO is exchange-wide, so jumps between one security's trades are not gaps.
+    c = certify(settings, venue_frames("moex-algopack"), tmp_path)["moex-algopack"]
+    assert c.check("trade_id_gaps").value == 0
 
 
-def test_out_of_order_arrival(settings: Settings, venue_frames: Frames, tmp_path: Path) -> None:
-    fault = FaultSpec(kind="reorder", venue="binance-usdm", index=4)
-    cert = certify(settings, apply_fault(venue_frames("binance-usdm"), fault), tmp_path)
-    c = cert["binance-usdm"]
-    assert c.check("out_of_order_messages").value == 1
-    assert c.check("sequence_gaps").value == 0  # replay in venue order still reconstructs
-
-
-def test_crossed_book(settings: Settings, venue_frames: Frames, tmp_path: Path) -> None:
-    frames = apply_fault(venue_frames("bybit"), FaultSpec(kind="cross", venue="bybit", index=5))
-    c = certify(settings, frames, tmp_path)["bybit"]
-    assert c.check("crossed_book_events").value >= 1
-    assert c.check("snapshot_mismatches").value == 1  # corruption persists until the snapshot
-
-
-def test_crossed_snapshot_on_unsequenced_venue(
-    settings: Settings, venue_frames: Frames, tmp_path: Path
+@pytest.mark.parametrize(("venue", "index"), [("moex-tbank", 5), ("moex-algopack", 3)])
+def test_crossed_book(
+    settings: Settings, venue_frames: Frames, tmp_path: Path, venue: str, index: int
 ) -> None:
-    fault = FaultSpec(kind="cross", venue="hyperliquid", index=0)
-    c = certify(settings, apply_fault(venue_frames("hyperliquid"), fault), tmp_path)
-    assert c["hyperliquid"].check("crossed_book_events").value == 1
+    frames = apply_fault(venue_frames(venue), FaultSpec(kind="cross", venue=venue, index=index))
+    c = certify(settings, frames, tmp_path)[venue]
+    assert c.check("crossed_book_events").value == 1
+    assert c.status == "degraded"
 
 
 def test_duplicates_are_removed_by_dedup(
     settings: Settings, venue_frames: Frames, tmp_path: Path
 ) -> None:
-    fault = FaultSpec(kind="duplicate", venue="bybit", index=2, delay_ms=3)
-    c = certify(settings, apply_fault(venue_frames("bybit"), fault), tmp_path)["bybit"]
+    fault = FaultSpec(kind="duplicate", venue="moex-tbank", index=4, delay_ms=3)
+    c = certify(settings, apply_fault(venue_frames("moex-tbank"), fault), tmp_path)["moex-tbank"]
     assert c.check("duplicate_messages").value == 0 and c.status == "certified"
 
 
@@ -103,39 +82,38 @@ def test_duplicates_without_dedup_are_flagged(
     make_settings: Callable[..., Settings], venue_frames: Frames, tmp_path: Path
 ) -> None:
     s = make_settings(TAPE_QUALITY__COVERAGE_WINDOW="observed", TAPE_DEDUP__ENABLED="false")
-    frames = venue_frames("binance")
-    for idx in (5, 1):  # a trade, then a depth update
-        frames = apply_fault(frames, FaultSpec(kind="duplicate", venue="binance", index=idx))
-    c = certify(s, frames, tmp_path)["binance"]
-    assert c.check("duplicate_messages").value == 2
-    assert c.book.stale_messages >= 1
+    frames = venue_frames("moex-algopack")
+    frames = apply_fault(frames, FaultSpec(kind="duplicate", venue="moex-algopack", index=0))
+    c = certify(s, frames, tmp_path)["moex-algopack"]
+    assert c.check("duplicate_messages").value >= 1
 
 
 def test_blind_resubscription_is_measured(
     settings: Settings, venue_frames: Frames, tmp_path: Path
 ) -> None:
-    fault = FaultSpec(kind="resubscribe", venue="okx", index=8, gap_ms=1500)
-    c = certify(settings, apply_fault(venue_frames("okx"), fault), tmp_path)["okx"]
+    fault = FaultSpec(kind="resubscribe", venue="moex-tbank", index=7, gap_ms=1500)
+    frames = apply_fault(venue_frames("moex-tbank"), fault)
+    c = certify(settings, frames, tmp_path)["moex-tbank"]
     assert c.resubscription.gap_ms_max >= 1500
     assert not c.check("resubscription_gap_ms_max").passed
     assert any(g.kind == "resubscription" for g in c.gaps)
-    assert c.check("sequence_gaps").value >= 1
 
 
 def test_silence_and_day_window(
     make_settings: Callable[..., Settings], venue_frames: Frames, tmp_path: Path
 ) -> None:
-    s = make_settings(TAPE_QUALITY__SILENCE_S__BOOK_DELTA="0.15")
-    c = certify(s, venue_frames("okx"), tmp_path)["okx"]
+    s = make_settings(TAPE_QUALITY__SILENCE_S__BOOK_SNAPSHOT="0.4")
+    c = certify(s, venue_frames("moex-tbank"), tmp_path)["moex-tbank"]
     assert any(g.kind == "silence" for g in c.gaps)
-    # With the full-day window a few seconds of data covers almost nothing: hard failure.
+    # With the full session window a few seconds of data covers almost nothing: hard failure.
     assert c.coverage_ratio < 0.01 and c.status == "failed"
 
 
-def test_moex_session_window(
+def test_moex_session_window_and_event_skew(
     make_settings: Callable[..., Settings], venue_frames: Frames, tmp_path: Path
 ) -> None:
-    c = certify(make_settings(), venue_frames("moex"), tmp_path)["moex"]
+    c = certify(make_settings(), venue_frames("moex-algopack"), tmp_path)["moex-algopack"]
     hours = (c.window_end_ns - c.window_start_ns) / 3.6e12
     assert hours == pytest.approx(17.0)  # 06:50-23:50 Moscow time
-    assert c.clock_skew is not None and c.clock_skew.p50_ms > 0
+    # Candles and Super Candles carry bar times; only event channels enter the skew.
+    assert c.clock_skew is not None and 0 < c.clock_skew.p50_ms < 5000

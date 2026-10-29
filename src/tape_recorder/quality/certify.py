@@ -12,7 +12,7 @@ The certifier reads one venue/symbol/date from a tape tree and measures:
    its top N levels must equal the book rebuilt from deltas.
 6. Re-subscription gaps: the union of per-connection activity spans ``[first, last]``; every hole
    in that union is time when no connection delivered anything.
-7. Clock skew: the distribution of ``ts_local - ts_exchange``.
+7. Clock skew: the distribution of ``ts_local - ts_exchange`` over event channels only.
 8. Coverage: the share of the expected window with live, in-sync data.
 """
 
@@ -50,6 +50,12 @@ from tape_recorder.timeutil import NS_PER_MS, NS_PER_S, date_bounds_ns, window_b
 from tape_recorder.writer import PartitionKey
 
 Level = tuple[float, float]
+
+# Channels whose ts_exchange is the time of the event itself. Candles and Super Candles carry a
+# bar time, which lags arrival by up to the bar length, so they would distort clock skew.
+SKEW_CHANNELS = frozenset(
+    {Channel.TRADES, Channel.BOOK_DELTA, Channel.BOOK_SNAPSHOT, Channel.TRADING_STATUS}
+)
 
 
 @dataclass(slots=True)
@@ -428,8 +434,8 @@ def certify_instrument_day(
     coverage = total(covered) / span if span > 0 else (1.0 if all_ts else 0.0)
 
     skew_parts: dict[str, list[np.ndarray]] = {}
-    for t in tables.values():
-        if t.num_rows == 0:
+    for channel, t in tables.items():
+        if t.num_rows == 0 or channel not in SKEW_CHANNELS:
             continue
         valid = pc.is_valid(t.column("ts_exchange"))
         ex = pc.filter(t.column("ts_exchange"), valid).to_numpy().astype(np.int64)

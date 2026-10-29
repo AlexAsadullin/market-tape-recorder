@@ -44,6 +44,11 @@ KEY_COLUMNS: dict[Channel, list[str]] = {
     Channel.FUNDING: ["ts_exchange", "rate", "mark_price"],
     Channel.LIQUIDATIONS: ["ts_exchange", "side", "price", "size"],
     Channel.OPEN_INTEREST: ["ts_exchange", "open_interest"],
+    Channel.CANDLES: ["interval", "ts_open", "close", "volume"],
+    Channel.TRADING_STATUS: ["ts_exchange", "status"],
+    Channel.TRADESTATS: ["ts_exchange"],
+    Channel.ORDERSTATS: ["ts_exchange"],
+    Channel.OBSTATS: ["ts_exchange"],
 }
 _KEY = "__key"
 _ROW = "__row"
