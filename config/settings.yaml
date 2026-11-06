@@ -28,11 +28,11 @@ session:
     jitter: 0.2
   redundant_connections: 2        # always-on overlapping connections per venue
   overlap_rotation: true          # open the replacement before closing (false = naive baseline)
-  rotate_after_s: 72000.0         # planned overlapping reconnect (exchanges drop at ~24 h)
+  rotate_after_s: 72000.0         # planned overlapping reconnect before long-lived streams age out
   daily_rotation_utc: "00:00:05"  # also rotate after midnight so every day starts with a snapshot
   overlap_timeout_s: 15.0         # max wait for the new connection's first data before dropping old
   connect_timeout_s: 10.0
-  resnapshot_interval_s: 600.0    # periodic REST snapshot (Binance) for snapshot/delta consistency
+  resnapshot_interval_s: 600.0    # periodic REST snapshot for adapters that have one (none of the MOEX sources)
   max_message_bytes: 16777216
   seed: 7
 
@@ -44,6 +44,17 @@ dedup:
 http:
   timeout_s: 10.0
   user_agent: tradeq-market-tape-recorder/0.1
+  # Public-key pins (leaf SPKI SHA-256). A pinned host is accepted by pin + SAN instead of a chain;
+  # every other host keeps certifi validation. T-Bank chains to the Russian Trusted Root CA, which
+  # is not trusted here. REST and the MarketDataStream WebSocket both use invest-public-api.tbank.ru.
+  # Pin taken 2026-11-05 with `tape pin-show invest-public-api.tbank.ru`: leaf CN=*.tbank.ru,
+  # valid 2026-08-24 .. 2027-08-24, certificate SHA-256 fingerprint
+  # 22:4F:05:8D:12:7B:C0:8F:78:3F:B9:BF:89:3E:9D:25:40:90:7D:A0:37:A5:DB:99:6A:4D:CB:6F:2D:06:23:99
+  # (compare with the browser: padlock -> certificate -> SHA-256 fingerprint). On rotation, add
+  # the new pin next to the old one, verify, then remove the old one.
+  pins:
+    invest-public-api.tbank.ru:
+      - "sha256/xU/NS71QVL2qP8naQf6PUKFhVehLfvYnI4CFs5qo6iQ="
 
 venues:
   # MOEX only (spec revision 2026-10-29). Venue names identify the capture source; see
@@ -175,6 +186,34 @@ backfill:
   min_request_interval_s: 0.2   # T-Bank market data allows 600 unary calls per minute
   iss_page_rows: 500            # ISS candles page size; a full page is requested again with start=
 
+download:                    # tape universe / tape download (bulk history, see README)
+  dir: download                # checkpoints/ and reports/ under the project data subtree
+  universe_file: universe_moex.json          # written to reference/
+  i2_instruments_file: moex_instruments_i2.jsonl  # I2 moex.instruments file drop, in reference/
+  share_boards: [TQBR]
+  fund_boards: [TQTF]          # T-Capital funds from reference/tbank_zero_fee_funds.json
+  shares_status: INSTRUMENT_STATUS_BASE  # ALL (~12 MB, all exchanges) is cut off by the server
+  workers: 8                   # concurrent requests; the rate limiter is shared
+  rate_fraction: 0.8           # pace at 80% of x-ratelimit-limit (600/min market data)
+  default_limit_per_min: 600   # until the first answer reports the limit
+  listing_interval_s: 5.0      # Shares/Etfs are listing methods: 15 calls per minute
+  max_attempts: 6              # per request; 429 waits x-ratelimit-reset, 5xx/transport back off
+  backoff_initial_s: 1.0
+  backoff_max_s: 60.0
+  commit_interval_s: 600.0     # finalise parts and save the checkpoint at least this often
+  progress_interval_s: 30.0
+  nice: 10                     # added to the process niceness (the recorder runs at priority.nice)
+  recorder_load_url: http://127.0.0.1:8602/v1/load  # pause while pressure is high; null = never
+  probe_interval_s: 5.0
+  yield_sleep_s: 10.0
+  minute_days: 365             # 1-minute history window
+  daily_span_days: 2190        # GetCandles maximum per request: 1 day (1 min), 6 years (day)
+  history_start: "1990-01-01"  # earliest daily date asked for (T-Bank and the ISS fallback)
+  iss_fallback: true           # public ISS (venue moex-iss) for what T-Bank lacks
+  iss_min_request_interval_s: 0.25
+  calendar_threshold: 0.5      # a day is a trading day when this share of listed names has a bar
+  part_index_gap: 1000         # part numbers far above the recorder's, so the two never collide
+
 priority:
   nice: 0                    # negative values raise priority but need privileges
   probe_interval_s: 0.5
@@ -185,6 +224,13 @@ priority:
 logging:
   level: INFO
   json_output: false
+
+reference:                     # tape instruments-ref
+  dir: reference
+  zero_fee_fields: [asset.brand.company, asset.brand.name]
+  # Confirmed 2026-11-05: the T-Capital funds carry asset.brand.company "Т-Капитал" (Cyrillic Т).
+  zero_fee_pattern: "т-капитал|t-capital|тинькофф|tinkoff"
+  min_request_interval_s: 0.35  # instruments service: 200 unary calls per minute
 
 demo:
   fixtures_dir: tests/fixtures/venues   # relative to the repository root

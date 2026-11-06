@@ -12,7 +12,6 @@ import contextlib
 import os
 from pathlib import Path
 
-import httpx
 import structlog
 import uvicorn
 
@@ -27,7 +26,14 @@ from tape_recorder.service import create_app
 from tape_recorder.session import PollingVenueSession, WsVenueSession, counter_ids
 from tape_recorder.settings import Settings
 from tape_recorder.timeutil import wall_clock_ns
-from tape_recorder.transport import TRANSPORT_ERRORS, HttpFetcher, HttpxFetcher, WebsocketsConnector
+from tape_recorder.transport import (
+    TRANSPORT_ERRORS,
+    HttpFetcher,
+    HttpxFetcher,
+    TlsPolicy,
+    WebsocketsConnector,
+    http_client,
+)
 from tape_recorder.writer import TapeWriter
 
 log = structlog.get_logger(__name__)
@@ -111,14 +117,14 @@ async def record(
         else None
     )
     pipeline = Pipeline(adapters, settings.region, writer, dedup, monitor, raw)
+    tls = TlsPolicy(settings.http.pins)
     connector = WebsocketsConnector(
         settings.session.connect_timeout_s,
         settings.session.max_message_bytes,
         settings.http.user_agent,
+        tls,
     )
-    async with httpx.AsyncClient(
-        timeout=settings.http.timeout_s, headers={"User-Agent": settings.http.user_agent}
-    ) as client:
+    async with http_client(settings.http, tls) as client:
         fetcher = HttpxFetcher(client)
         await resolve_instruments(adapters, fetcher, pipeline, f"{settings.region}-resolve")
         tasks: list[asyncio.Task[None]] = [

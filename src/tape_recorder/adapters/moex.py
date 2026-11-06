@@ -12,7 +12,9 @@ where each table is ``{metadata, columns, data}``. Per polling round the adapter
 * ``trades``: all trades after the last ``TRADENO`` seen (a full page is polled again at once);
 * ``orderbook``: a 20-level snapshot stamped with ``SEQNUM``;
 * ``candles``: candles from the begin time of the newest candle seen, so the open candle is
-  re-read until it closes (each revision is stored; I2 keeps the latest per key);
+  re-read until it closes (each revision is stored; I2 keeps the latest per key); the first poll
+  starts at 00:00 Moscow time of the current day, because ISS without ``from`` answers with the
+  security's oldest candles (2011 for SBER, seen on the first live run 2026-11-05);
 * ``marketdata``: the security's ``TRADINGSTATUS``;
 * ``tradestats``, ``orderstats``, ``obstats``: the latest AlgoPack Super Candle (``latest=1``).
 
@@ -39,7 +41,7 @@ from tape_recorder.adapters.base import (
 from tape_recorder.frames import RestRequest
 from tape_recorder.schema import STATS_CHANNELS, STATS_COLUMNS, Channel, Side
 from tape_recorder.settings import SymbolSettings, VenueSettings
-from tape_recorder.timeutil import NS_PER_S, local_date, local_to_ns
+from tape_recorder.timeutil import NS_PER_S, Clock, local_date, local_to_ns, wall_clock_ns
 
 log = structlog.get_logger(__name__)
 
@@ -62,7 +64,7 @@ def _float(value: Any) -> float | None:
 class MoexIssAdapter:
     transport: TransportKind = "rest_poll"
 
-    def __init__(self, venue: str, settings: VenueSettings) -> None:
+    def __init__(self, venue: str, settings: VenueSettings, clock: Clock = wall_clock_ns) -> None:
         if settings.rest_url is None or settings.timezone is None:
             raise ValueError(f"{venue}: rest_url and timezone are required")
         for native, sym in settings.symbols.items():
@@ -77,6 +79,7 @@ class MoexIssAdapter:
         self.settings = settings
         self.symbols = SymbolMap(settings.symbols)
         self.tz = settings.timezone
+        self.clock = clock
         self._trade_cursor: dict[str, int] = {}
         self._candle_cursor: dict[str, str] = {}
         self._backlog: set[str] = set()
@@ -146,8 +149,8 @@ class MoexIssAdapter:
             if Channel.CANDLES in channels and self._due("candles"):
                 assert self.settings.candle_interval is not None
                 extra = {"interval": self.settings.candle_interval}
-                if native in self._candle_cursor:
-                    extra["from"] = self._candle_cursor[native]
+                today = local_date(self.clock(), self.tz).isoformat()
+                extra["from"] = self._candle_cursor.get(native, f"{today} 00:00:00")
                 out.append(self._request("candles", native, sym, **extra))
             if Channel.TRADING_STATUS in channels and self._due("marketdata"):
                 out.append(self._request("marketdata", native, sym))

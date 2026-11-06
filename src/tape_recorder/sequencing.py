@@ -1,9 +1,8 @@
 """Per-venue sequence rules for order-book deltas (pure functions).
 
 Every sequenced delta message is described by ``seq`` (its final update id) and either
-``prev_seq`` (the final id of the message before it, OKX ``prevSeqId`` / Binance USD-M ``pu``) or
-``first_seq`` (its first update id, Binance spot ``U`` / Bybit ``u``). From those we derive the
-first update id the message needs to have been preceded by::
+``prev_seq`` (the final id of the message before it) or ``first_seq`` (its first update id).
+From those we derive the first update id the message needs to have been preceded by::
 
     start = prev_seq + 1   if prev_seq is known
           = first_seq      otherwise
@@ -14,8 +13,9 @@ Given the last applied id ``L`` (from a delta or a snapshot), a message is
 - ``contiguous`` if ``start <= L + 1`` (L2 levels carry absolute sizes, so overlap is harmless),
 - ``gap``        otherwise: updates ``L + 1 .. start - 1`` were never seen.
 
-This one rule covers Binance spot (``U <= L+1 <= u``, the documented snapshot alignment),
-Binance USD-M (``pu == L``), OKX (``prevSeqId == L``) and Bybit (``u == L+1``).
+Neither current MOEX source streams deltas (T-Bank books are full snapshots, AlgoPack books are
+polled snapshots), so the rule is used by the certificate for tapes with ``book_delta`` rows and
+by the planned ISS+ STOMP order-book updates.
 """
 
 from __future__ import annotations

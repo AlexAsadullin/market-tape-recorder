@@ -1,0 +1,2602 @@
+{
+ "venue": "moex-tbank",
+ "_note": "Excerpt of the raw log of the first live T-Bank run, 2026-11-05 ~20:07 UTC (evening session). Payloads unchanged; request headers are never logged.",
+ "frames": [
+  {
+   "ts_local": 1793909227178408000,
+   "connection": "eu-local-resolve",
+   "source": "rest",
+   "payload": {
+    "instrument": {
+     "figi": "BBG004730N88",
+     "ticker": "SBER",
+     "classCode": "TQBR",
+     "isin": "RU0009029540",
+     "lot": 1,
+     "currency": "rub",
+     "dlong": {
+      "units": "0",
+      "nano": 166600000
+     },
+     "dshort": {
+      "units": "0",
+      "nano": 200000000
+     },
+     "dlongMin": {
+      "units": "0",
+      "nano": 125000000
+     },
+     "dshortMin": {
+      "units": "0",
+      "nano": 142800000
+     },
+     "shortEnabledFlag": true,
+     "name": "Сбербанк",
+     "exchange": "moex_mrng_evng_e_wknd_dlr",
+     "ipoDate": "2007-07-11T00:00:00Z",
+     "issueSize": "21586948000",
+     "countryOfRisk": "RU",
+     "countryOfRiskName": "Российская Федерация",
+     "sector": "financial",
+     "issueSizePlan": "21586948000",
+     "nominal": {
+      "currency": "rub",
+      "units": "3",
+      "nano": 0
+     },
+     "tradingStatus": "SECURITY_TRADING_STATUS_NORMAL_TRADING",
+     "otcFlag": false,
+     "buyAvailableFlag": true,
+     "sellAvailableFlag": true,
+     "divYieldFlag": true,
+     "shareType": "SHARE_TYPE_COMMON",
+     "minPriceIncrement": {
+      "units": "0",
+      "nano": 10000000
+     },
+     "apiTradeAvailableFlag": true,
+     "uid": "e6123145-9665-43e0-8413-cd61b8aa9b13",
+     "realExchange": "REAL_EXCHANGE_MOEX",
+     "positionUid": "41eb2102-5333-4713-bf15-72b204c4bf7b",
+     "assetUid": "40d89385-a03a-4659-bf4e-d3ecba011782",
+     "instrumentExchange": "INSTRUMENT_EXCHANGE_UNSPECIFIED",
+     "requiredTests": [],
+     "forIisFlag": true,
+     "forQualInvestorFlag": false,
+     "weekendFlag": true,
+     "blockedTcaFlag": false,
+     "liquidityFlag": true,
+     "first1minCandleDate": "2018-03-07T18:33:00Z",
+     "first1dayCandleDate": "2000-01-04T07:00:00Z",
+     "brand": {
+      "logoName": "sber3.png",
+      "logoBaseColor": "#309c0b",
+      "textColor": "#ffffff"
+     },
+     "dlongClient": {
+      "units": "0",
+      "nano": 225200000
+     },
+     "dshortClient": {
+      "units": "0",
+      "nano": 290800000
+     }
+    }
+   },
+   "request": {
+    "url": "https://invest-public-api.tbank.ru/rest/tinkoff.public.invest.api.contract.v1.InstrumentsService/ShareBy",
+    "tag": "share",
+    "native_symbol": "SBER",
+    "params": [],
+    "method": "POST",
+    "body": "{\"idType\":\"INSTRUMENT_ID_TYPE_TICKER\",\"classCode\":\"TQBR\",\"id\":\"SBER\"}"
+   }
+  },
+  {
+   "ts_local": 1793909227304284000,
+   "connection": "eu-local-resolve",
+   "source": "rest",
+   "payload": {
+    "instrument": {
+     "figi": "BBG004730RP0",
+     "ticker": "GAZP",
+     "classCode": "TQBR",
+     "isin": "RU0007661625",
+     "lot": 10,
+     "currency": "rub",
+     "dlong": {
+      "units": "0",
+      "nano": 171200000
+     },
+     "dshort": {
+      "units": "0",
+      "nano": 276700000
+     },
+     "dlongMin": {
+      "units": "0",
+      "nano": 142800000
+     },
+     "dshortMin": {
+      "units": "0",
+      "nano": 181800000
+     },
+     "shortEnabledFlag": true,
+     "name": "Газпром",
+     "exchange": "moex_mrng_evng_e_wknd_dlr",
+     "ipoDate": "1998-12-30T00:00:00Z",
+     "issueSize": "23673512900",
+     "countryOfRisk": "RU",
+     "countryOfRiskName": "Российская Федерация",
+     "sector": "energy",
+     "issueSizePlan": "23673512900",
+     "nominal": {
+      "currency": "rub",
+      "units": "5",
+      "nano": 0
+     },
+     "tradingStatus": "SECURITY_TRADING_STATUS_NORMAL_TRADING",
+     "otcFlag": false,
+     "buyAvailableFlag": true,
+     "sellAvailableFlag": true,
+     "divYieldFlag": true,
+     "shareType": "SHARE_TYPE_COMMON",
+     "minPriceIncrement": {
+      "units": "0",
+      "nano": 10000000
+     },
+     "apiTradeAvailableFlag": true,
+     "uid": "962e2a95-02a9-4171-abd7-aa198dbe643a",
+     "realExchange": "REAL_EXCHANGE_MOEX",
+     "positionUid": "4f9d0c81-cdf9-4735-8295-bacbfa3b8a51",
+     "assetUid": "bfc8184d-9562-4ea2-87dd-be6e76dc1279",
+     "instrumentExchange": "INSTRUMENT_EXCHANGE_UNSPECIFIED",
+     "requiredTests": [],
+     "forIisFlag": true,
+     "forQualInvestorFlag": false,
+     "weekendFlag": true,
+     "blockedTcaFlag": false,
+     "liquidityFlag": true,
+     "first1minCandleDate": "2018-03-07T18:33:00Z",
+     "first1dayCandleDate": "2006-01-23T07:00:00Z",
+     "brand": {
+      "logoName": "RU0007661625.png",
+      "logoBaseColor": "#117cbf",
+      "textColor": "#ffffff"
+     },
+     "dlongClient": {
+      "units": "0",
+      "nano": 231100000
+     },
+     "dshortClient": {
+      "units": "0",
+      "nano": 407700000
+     }
+    }
+   },
+   "request": {
+    "url": "https://invest-public-api.tbank.ru/rest/tinkoff.public.invest.api.contract.v1.InstrumentsService/ShareBy",
+    "tag": "share",
+    "native_symbol": "GAZP",
+    "params": [],
+    "method": "POST",
+    "body": "{\"idType\":\"INSTRUMENT_ID_TYPE_TICKER\",\"classCode\":\"TQBR\",\"id\":\"GAZP\"}"
+   }
+  },
+  {
+   "ts_local": 1793909227404953000,
+   "connection": "eu-local-resolve",
+   "source": "rest",
+   "payload": {
+    "instrument": {
+     "figi": "BBG004731032",
+     "ticker": "LKOH",
+     "classCode": "TQBR",
+     "isin": "RU0009024277",
+     "lot": 1,
+     "currency": "rub",
+     "dlong": {
+      "units": "0",
+      "nano": 166600000
+     },
+     "dshort": {
+      "units": "0",
+      "nano": 220000000
+     },
+     "dlongMin": {
+      "units": "0",
+      "nano": 125000000
+     },
+     "dshortMin": {
+      "units": "0",
+      "nano": 166600000
+     },
+     "shortEnabledFlag": true,
+     "name": "ЛУКОЙЛ",
+     "exchange": "moex_mrng_evng_e_wknd_dlr",
+     "ipoDate": "2003-06-25T00:00:00Z",
+     "issueSize": "692865762",
+     "countryOfRisk": "RU",
+     "countryOfRiskName": "Российская Федерация",
+     "sector": "energy",
+     "issueSizePlan": "850563255",
+     "nominal": {
+      "currency": "rub",
+      "units": "0",
+      "nano": 25000000
+     },
+     "tradingStatus": "SECURITY_TRADING_STATUS_NORMAL_TRADING",
+     "otcFlag": false,
+     "buyAvailableFlag": true,
+     "sellAvailableFlag": true,
+     "divYieldFlag": true,
+     "shareType": "SHARE_TYPE_COMMON",
+     "minPriceIncrement": {
+      "units": "0",
+      "nano": 500000000
+     },
+     "apiTradeAvailableFlag": true,
+     "uid": "02cfdf61-6298-4c0f-a9ca-9cabc82afaf3",
+     "realExchange": "REAL_EXCHANGE_MOEX",
+     "positionUid": "3213e01a-7bce-4946-b01e-5b0aaa3fc9b4",
+     "assetUid": "f898047a-dac8-4717-a40f-7f11211139ef",
+     "instrumentExchange": "INSTRUMENT_EXCHANGE_UNSPECIFIED",
+     "requiredTests": [],
+     "forIisFlag": true,
+     "forQualInvestorFlag": false,
+     "weekendFlag": true,
+     "blockedTcaFlag": false,
+     "liquidityFlag": true,
+     "first1minCandleDate": "2018-03-07T18:33:00Z",
+     "first1dayCandleDate": "2000-01-04T07:00:00Z",
+     "brand": {
+      "logoName": "RU0009024277.png",
+      "logoBaseColor": "#e31d24",
+      "textColor": "#ffffff"
+     },
+     "dlongClient": {
+      "units": "0",
+      "nano": 250000000
+     },
+     "dshortClient": {
+      "units": "0",
+      "nano": 333300000
+     }
+    }
+   },
+   "request": {
+    "url": "https://invest-public-api.tbank.ru/rest/tinkoff.public.invest.api.contract.v1.InstrumentsService/ShareBy",
+    "tag": "share",
+    "native_symbol": "LKOH",
+    "params": [],
+    "method": "POST",
+    "body": "{\"idType\":\"INSTRUMENT_ID_TYPE_TICKER\",\"classCode\":\"TQBR\",\"id\":\"LKOH\"}"
+   }
+  },
+  {
+   "ts_local": 1793909229594781000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-2",
+   "source": "ws",
+   "payload": {
+    "subscribeOrderBookResponse": {
+     "trackingId": "f3562a15996bc67d2f1c82bb24a61740",
+     "orderBookSubscriptions": [
+      {
+       "figi": "BBG004730N88",
+       "depth": 20,
+       "subscriptionStatus": "SUBSCRIPTION_STATUS_SUCCESS",
+       "instrumentUid": "e6123145-9665-43e0-8413-cd61b8aa9b13",
+       "streamId": "645b1c57-da2c-4256-90cd-6533c3ec9f8c",
+       "subscriptionId": "24b1bf8e-8087-4bd1-8c29-6fa543e1d794",
+       "orderBookType": "ORDERBOOK_TYPE_ALL",
+       "subscriptionAction": "SUBSCRIPTION_ACTION_SUBSCRIBE",
+       "ticker": "SBER",
+       "classCode": "TQBR"
+      },
+      {
+       "figi": "BBG004730RP0",
+       "depth": 20,
+       "subscriptionStatus": "SUBSCRIPTION_STATUS_SUCCESS",
+       "instrumentUid": "962e2a95-02a9-4171-abd7-aa198dbe643a",
+       "streamId": "645b1c57-da2c-4256-90cd-6533c3ec9f8c",
+       "subscriptionId": "c6941c4a-58f9-4fc0-8b33-bde5889fd7e5",
+       "orderBookType": "ORDERBOOK_TYPE_ALL",
+       "subscriptionAction": "SUBSCRIPTION_ACTION_SUBSCRIBE",
+       "ticker": "GAZP",
+       "classCode": "TQBR"
+      },
+      {
+       "figi": "BBG004731032",
+       "depth": 20,
+       "subscriptionStatus": "SUBSCRIPTION_STATUS_SUCCESS",
+       "instrumentUid": "02cfdf61-6298-4c0f-a9ca-9cabc82afaf3",
+       "streamId": "645b1c57-da2c-4256-90cd-6533c3ec9f8c",
+       "subscriptionId": "3f764e92-0cb7-4c27-b133-69fd2341611c",
+       "orderBookType": "ORDERBOOK_TYPE_ALL",
+       "subscriptionAction": "SUBSCRIPTION_ACTION_SUBSCRIBE",
+       "ticker": "LKOH",
+       "classCode": "TQBR"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "ts_local": 1793909229595645000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-2",
+   "source": "ws",
+   "payload": {
+    "subscribeTradesResponse": {
+     "trackingId": "f3562a15996bc67d2f1c82bb24a61740",
+     "tradeSubscriptions": [
+      {
+       "figi": "BBG004730N88",
+       "subscriptionStatus": "SUBSCRIPTION_STATUS_SUCCESS",
+       "instrumentUid": "e6123145-9665-43e0-8413-cd61b8aa9b13",
+       "streamId": "645b1c57-da2c-4256-90cd-6533c3ec9f8c",
+       "subscriptionId": "a16fa3bb-687b-4cd0-bf11-86ac3e04f120",
+       "withOpenInterest": false,
+       "subscriptionAction": "SUBSCRIPTION_ACTION_SUBSCRIBE",
+       "ticker": "SBER",
+       "classCode": "TQBR"
+      },
+      {
+       "figi": "BBG004730RP0",
+       "subscriptionStatus": "SUBSCRIPTION_STATUS_SUCCESS",
+       "instrumentUid": "962e2a95-02a9-4171-abd7-aa198dbe643a",
+       "streamId": "645b1c57-da2c-4256-90cd-6533c3ec9f8c",
+       "subscriptionId": "7351ad6d-8673-47a4-9c37-49553b226dbd",
+       "withOpenInterest": false,
+       "subscriptionAction": "SUBSCRIPTION_ACTION_SUBSCRIBE",
+       "ticker": "GAZP",
+       "classCode": "TQBR"
+      },
+      {
+       "figi": "BBG004731032",
+       "subscriptionStatus": "SUBSCRIPTION_STATUS_SUCCESS",
+       "instrumentUid": "02cfdf61-6298-4c0f-a9ca-9cabc82afaf3",
+       "streamId": "645b1c57-da2c-4256-90cd-6533c3ec9f8c",
+       "subscriptionId": "0a360820-16df-46ba-8818-f9736abf0899",
+       "withOpenInterest": false,
+       "subscriptionAction": "SUBSCRIPTION_ACTION_SUBSCRIBE",
+       "ticker": "LKOH",
+       "classCode": "TQBR"
+      }
+     ],
+     "tradeSource": "TRADE_SOURCE_ALL"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909229622239000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-1",
+   "source": "ws",
+   "payload": {
+    "subscribeCandlesResponse": {
+     "trackingId": "9bf94bf8b3d26948e9de24edabe1ac9e",
+     "candlesSubscriptions": [
+      {
+       "figi": "BBG004730N88",
+       "interval": "SUBSCRIPTION_INTERVAL_ONE_MINUTE",
+       "subscriptionStatus": "SUBSCRIPTION_STATUS_SUCCESS",
+       "instrumentUid": "e6123145-9665-43e0-8413-cd61b8aa9b13",
+       "waitingClose": false,
+       "streamId": "a3adecd9-c70d-4555-9587-c951590f4173",
+       "subscriptionId": "a8a58a01-df92-4c08-b5ac-9fe74d515b81",
+       "subscriptionAction": "SUBSCRIPTION_ACTION_SUBSCRIBE",
+       "candleSourceType": "CANDLE_SOURCE_UNSPECIFIED",
+       "ticker": "SBER",
+       "classCode": "TQBR"
+      },
+      {
+       "figi": "BBG004730RP0",
+       "interval": "SUBSCRIPTION_INTERVAL_ONE_MINUTE",
+       "subscriptionStatus": "SUBSCRIPTION_STATUS_SUCCESS",
+       "instrumentUid": "962e2a95-02a9-4171-abd7-aa198dbe643a",
+       "waitingClose": false,
+       "streamId": "a3adecd9-c70d-4555-9587-c951590f4173",
+       "subscriptionId": "474ad818-b03b-4961-9774-8f9fab6391d5",
+       "subscriptionAction": "SUBSCRIPTION_ACTION_SUBSCRIBE",
+       "candleSourceType": "CANDLE_SOURCE_UNSPECIFIED",
+       "ticker": "GAZP",
+       "classCode": "TQBR"
+      },
+      {
+       "figi": "BBG004731032",
+       "interval": "SUBSCRIPTION_INTERVAL_ONE_MINUTE",
+       "subscriptionStatus": "SUBSCRIPTION_STATUS_SUCCESS",
+       "instrumentUid": "02cfdf61-6298-4c0f-a9ca-9cabc82afaf3",
+       "waitingClose": false,
+       "streamId": "a3adecd9-c70d-4555-9587-c951590f4173",
+       "subscriptionId": "222559e0-632c-4452-ad39-f7c35c27751a",
+       "subscriptionAction": "SUBSCRIPTION_ACTION_SUBSCRIBE",
+       "candleSourceType": "CANDLE_SOURCE_UNSPECIFIED",
+       "ticker": "LKOH",
+       "classCode": "TQBR"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "ts_local": 1793909229622986000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-1",
+   "source": "ws",
+   "payload": {
+    "subscribeInfoResponse": {
+     "trackingId": "9bf94bf8b3d26948e9de24edabe1ac9e",
+     "infoSubscriptions": [
+      {
+       "figi": "BBG004730N88",
+       "subscriptionStatus": "SUBSCRIPTION_STATUS_SUCCESS",
+       "instrumentUid": "e6123145-9665-43e0-8413-cd61b8aa9b13",
+       "streamId": "a3adecd9-c70d-4555-9587-c951590f4173",
+       "subscriptionId": "6a3cbd06-b443-40c9-8395-8db5d0baf1c3",
+       "subscriptionAction": "SUBSCRIPTION_ACTION_SUBSCRIBE",
+       "ticker": "SBER",
+       "classCode": "TQBR"
+      },
+      {
+       "figi": "BBG004730RP0",
+       "subscriptionStatus": "SUBSCRIPTION_STATUS_SUCCESS",
+       "instrumentUid": "962e2a95-02a9-4171-abd7-aa198dbe643a",
+       "streamId": "a3adecd9-c70d-4555-9587-c951590f4173",
+       "subscriptionId": "59ac4645-2af8-4780-aac1-3eb293f6348a",
+       "subscriptionAction": "SUBSCRIPTION_ACTION_SUBSCRIBE",
+       "ticker": "GAZP",
+       "classCode": "TQBR"
+      },
+      {
+       "figi": "BBG004731032",
+       "subscriptionStatus": "SUBSCRIPTION_STATUS_SUCCESS",
+       "instrumentUid": "02cfdf61-6298-4c0f-a9ca-9cabc82afaf3",
+       "streamId": "a3adecd9-c70d-4555-9587-c951590f4173",
+       "subscriptionId": "7d0df230-b05a-4177-8dd4-b6a7fcd2cc4d",
+       "subscriptionAction": "SUBSCRIPTION_ACTION_SUBSCRIBE",
+       "ticker": "LKOH",
+       "classCode": "TQBR"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "ts_local": 1793909229623236000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-1",
+   "source": "ws",
+   "payload": {
+    "tradingStatus": {
+     "figi": "BBG004730N88",
+     "tradingStatus": "SECURITY_TRADING_STATUS_NORMAL_TRADING",
+     "time": "2026-11-05T16:00:05.400311768Z",
+     "limitOrderAvailableFlag": true,
+     "marketOrderAvailableFlag": true,
+     "instrumentUid": "e6123145-9665-43e0-8413-cd61b8aa9b13",
+     "ticker": "SBER",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909229623787000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-1",
+   "source": "ws",
+   "payload": {
+    "tradingStatus": {
+     "figi": "BBG004730RP0",
+     "tradingStatus": "SECURITY_TRADING_STATUS_NORMAL_TRADING",
+     "time": "2026-11-05T16:00:05.391294941Z",
+     "limitOrderAvailableFlag": true,
+     "marketOrderAvailableFlag": true,
+     "instrumentUid": "962e2a95-02a9-4171-abd7-aa198dbe643a",
+     "ticker": "GAZP",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909229624019000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-1",
+   "source": "ws",
+   "payload": {
+    "tradingStatus": {
+     "figi": "BBG004731032",
+     "tradingStatus": "SECURITY_TRADING_STATUS_NORMAL_TRADING",
+     "time": "2026-11-05T16:00:05.390384576Z",
+     "limitOrderAvailableFlag": true,
+     "marketOrderAvailableFlag": true,
+     "instrumentUid": "02cfdf61-6298-4c0f-a9ca-9cabc82afaf3",
+     "ticker": "LKOH",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909229644377000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-2",
+   "source": "ws",
+   "payload": {
+    "candle": {
+     "figi": "BBG004730N88",
+     "interval": "SUBSCRIPTION_INTERVAL_ONE_MINUTE",
+     "open": {
+      "units": "292",
+      "nano": 770000000
+     },
+     "high": {
+      "units": "292",
+      "nano": 770000000
+     },
+     "low": {
+      "units": "292",
+      "nano": 740000000
+     },
+     "close": {
+      "units": "292",
+      "nano": 740000000
+     },
+     "volume": "71",
+     "time": "2026-11-05T20:07:00Z",
+     "lastTradeTs": "2026-11-05T20:07:08.111761Z",
+     "instrumentUid": "e6123145-9665-43e0-8413-cd61b8aa9b13",
+     "ticker": "SBER",
+     "classCode": "TQBR",
+     "volumeBuy": "35",
+     "volumeSell": "36",
+     "candleSourceType": "CANDLE_SOURCE_EXCHANGE"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909229644813000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-2",
+   "source": "ws",
+   "payload": {
+    "candle": {
+     "figi": "BBG004730RP0",
+     "interval": "SUBSCRIPTION_INTERVAL_ONE_MINUTE",
+     "open": {
+      "units": "112",
+      "nano": 370000000
+     },
+     "high": {
+      "units": "112",
+      "nano": 400000000
+     },
+     "low": {
+      "units": "112",
+      "nano": 350000000
+     },
+     "close": {
+      "units": "112",
+      "nano": 360000000
+     },
+     "volume": "158",
+     "time": "2026-11-05T20:07:00Z",
+     "lastTradeTs": "2026-11-05T20:07:08.662478Z",
+     "instrumentUid": "962e2a95-02a9-4171-abd7-aa198dbe643a",
+     "ticker": "GAZP",
+     "classCode": "TQBR",
+     "volumeBuy": "12",
+     "volumeSell": "146",
+     "candleSourceType": "CANDLE_SOURCE_EXCHANGE"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909229645281000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-2",
+   "source": "ws",
+   "payload": {
+    "candle": {
+     "figi": "BBG004731032",
+     "interval": "SUBSCRIPTION_INTERVAL_ONE_MINUTE",
+     "open": {
+      "units": "6031",
+      "nano": 500000000
+     },
+     "high": {
+      "units": "6031",
+      "nano": 500000000
+     },
+     "low": {
+      "units": "6031",
+      "nano": 500000000
+     },
+     "close": {
+      "units": "6031",
+      "nano": 500000000
+     },
+     "volume": "13",
+     "time": "2026-11-05T20:07:00Z",
+     "lastTradeTs": "2026-11-05T20:07:06.385854Z",
+     "instrumentUid": "02cfdf61-6298-4c0f-a9ca-9cabc82afaf3",
+     "ticker": "LKOH",
+     "classCode": "TQBR",
+     "volumeBuy": "0",
+     "volumeSell": "13",
+     "candleSourceType": "CANDLE_SOURCE_EXCHANGE"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909230182132000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-1",
+   "source": "ws",
+   "payload": {
+    "trade": {
+     "figi": "BBG004731032",
+     "direction": "TRADE_DIRECTION_BUY",
+     "price": {
+      "units": "6033",
+      "nano": 500000000
+     },
+     "quantity": "1",
+     "time": "2026-11-05T20:07:10.092667Z",
+     "instrumentUid": "02cfdf61-6298-4c0f-a9ca-9cabc82afaf3",
+     "tradeSource": "TRADE_SOURCE_EXCHANGE",
+     "ticker": "LKOH",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909230182363000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-2",
+   "source": "ws",
+   "payload": {
+    "trade": {
+     "figi": "BBG004731032",
+     "direction": "TRADE_DIRECTION_BUY",
+     "price": {
+      "units": "6033",
+      "nano": 500000000
+     },
+     "quantity": "1",
+     "time": "2026-11-05T20:07:10.092667Z",
+     "instrumentUid": "02cfdf61-6298-4c0f-a9ca-9cabc82afaf3",
+     "tradeSource": "TRADE_SOURCE_EXCHANGE",
+     "ticker": "LKOH",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909230235149000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-2",
+   "source": "ws",
+   "payload": {
+    "trade": {
+     "figi": "BBG004731032",
+     "direction": "TRADE_DIRECTION_BUY",
+     "price": {
+      "units": "6033",
+      "nano": 500000000
+     },
+     "quantity": "2",
+     "time": "2026-11-05T20:07:10.092667Z",
+     "instrumentUid": "02cfdf61-6298-4c0f-a9ca-9cabc82afaf3",
+     "tradeSource": "TRADE_SOURCE_EXCHANGE",
+     "ticker": "LKOH",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909230236872000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-2",
+   "source": "ws",
+   "payload": {
+    "orderbook": {
+     "figi": "BBG004730RP0",
+     "depth": 20,
+     "isConsistent": true,
+     "bids": [
+      {
+       "price": {
+        "units": "112",
+        "nano": 360000000
+       },
+       "quantity": "137"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 350000000
+       },
+       "quantity": "109"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 340000000
+       },
+       "quantity": "1143"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 330000000
+       },
+       "quantity": "1974"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 320000000
+       },
+       "quantity": "1393"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 310000000
+       },
+       "quantity": "2502"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 300000000
+       },
+       "quantity": "906"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 290000000
+       },
+       "quantity": "378"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 280000000
+       },
+       "quantity": "1574"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 270000000
+       },
+       "quantity": "554"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 260000000
+       },
+       "quantity": "1289"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 250000000
+       },
+       "quantity": "3538"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 240000000
+       },
+       "quantity": "1433"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 230000000
+       },
+       "quantity": "1565"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 220000000
+       },
+       "quantity": "2451"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 210000000
+       },
+       "quantity": "348"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 200000000
+       },
+       "quantity": "1798"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 190000000
+       },
+       "quantity": "726"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 180000000
+       },
+       "quantity": "337"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 170000000
+       },
+       "quantity": "327"
+      }
+     ],
+     "asks": [
+      {
+       "price": {
+        "units": "112",
+        "nano": 400000000
+       },
+       "quantity": "632"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 410000000
+       },
+       "quantity": "500"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 420000000
+       },
+       "quantity": "759"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 430000000
+       },
+       "quantity": "742"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 440000000
+       },
+       "quantity": "627"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 450000000
+       },
+       "quantity": "1731"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 460000000
+       },
+       "quantity": "1025"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 470000000
+       },
+       "quantity": "1946"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 480000000
+       },
+       "quantity": "2822"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 490000000
+       },
+       "quantity": "4283"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 500000000
+       },
+       "quantity": "853"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 510000000
+       },
+       "quantity": "1822"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 520000000
+       },
+       "quantity": "1022"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 530000000
+       },
+       "quantity": "622"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 540000000
+       },
+       "quantity": "326"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 550000000
+       },
+       "quantity": "478"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 560000000
+       },
+       "quantity": "323"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 570000000
+       },
+       "quantity": "492"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 580000000
+       },
+       "quantity": "324"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 590000000
+       },
+       "quantity": "323"
+      }
+     ],
+     "time": "2026-11-05T20:07:10.098946Z",
+     "limitUp": {
+      "units": "122",
+      "nano": 910000000
+     },
+     "limitDown": {
+      "units": "103",
+      "nano": 530000000
+     },
+     "instrumentUid": "962e2a95-02a9-4171-abd7-aa198dbe643a",
+     "orderBookType": "ORDERBOOK_TYPE_EXCHANGE",
+     "ticker": "GAZP",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909230237956000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-2",
+   "source": "ws",
+   "payload": {
+    "orderbook": {
+     "figi": "BBG004731032",
+     "depth": 20,
+     "isConsistent": true,
+     "bids": [
+      {
+       "price": {
+        "units": "6031",
+        "nano": 500000000
+       },
+       "quantity": "306"
+      },
+      {
+       "price": {
+        "units": "6031",
+        "nano": 0
+       },
+       "quantity": "91"
+      },
+      {
+       "price": {
+        "units": "6030",
+        "nano": 500000000
+       },
+       "quantity": "232"
+      },
+      {
+       "price": {
+        "units": "6030",
+        "nano": 0
+       },
+       "quantity": "110"
+      },
+      {
+       "price": {
+        "units": "6029",
+        "nano": 500000000
+       },
+       "quantity": "179"
+      },
+      {
+       "price": {
+        "units": "6029",
+        "nano": 0
+       },
+       "quantity": "287"
+      },
+      {
+       "price": {
+        "units": "6028",
+        "nano": 500000000
+       },
+       "quantity": "118"
+      },
+      {
+       "price": {
+        "units": "6028",
+        "nano": 0
+       },
+       "quantity": "223"
+      },
+      {
+       "price": {
+        "units": "6027",
+        "nano": 500000000
+       },
+       "quantity": "21"
+      },
+      {
+       "price": {
+        "units": "6027",
+        "nano": 0
+       },
+       "quantity": "663"
+      },
+      {
+       "price": {
+        "units": "6026",
+        "nano": 500000000
+       },
+       "quantity": "641"
+      },
+      {
+       "price": {
+        "units": "6026",
+        "nano": 0
+       },
+       "quantity": "234"
+      },
+      {
+       "price": {
+        "units": "6025",
+        "nano": 500000000
+       },
+       "quantity": "661"
+      },
+      {
+       "price": {
+        "units": "6025",
+        "nano": 0
+       },
+       "quantity": "422"
+      },
+      {
+       "price": {
+        "units": "6024",
+        "nano": 500000000
+       },
+       "quantity": "595"
+      },
+      {
+       "price": {
+        "units": "6024",
+        "nano": 0
+       },
+       "quantity": "35"
+      },
+      {
+       "price": {
+        "units": "6023",
+        "nano": 500000000
+       },
+       "quantity": "36"
+      },
+      {
+       "price": {
+        "units": "6023",
+        "nano": 0
+       },
+       "quantity": "404"
+      },
+      {
+       "price": {
+        "units": "6022",
+        "nano": 500000000
+       },
+       "quantity": "12"
+      },
+      {
+       "price": {
+        "units": "6022",
+        "nano": 0
+       },
+       "quantity": "78"
+      }
+     ],
+     "asks": [
+      {
+       "price": {
+        "units": "6033",
+        "nano": 500000000
+       },
+       "quantity": "27"
+      },
+      {
+       "price": {
+        "units": "6034",
+        "nano": 500000000
+       },
+       "quantity": "19"
+      },
+      {
+       "price": {
+        "units": "6035",
+        "nano": 0
+       },
+       "quantity": "59"
+      },
+      {
+       "price": {
+        "units": "6035",
+        "nano": 500000000
+       },
+       "quantity": "150"
+      },
+      {
+       "price": {
+        "units": "6036",
+        "nano": 0
+       },
+       "quantity": "130"
+      },
+      {
+       "price": {
+        "units": "6036",
+        "nano": 500000000
+       },
+       "quantity": "45"
+      },
+      {
+       "price": {
+        "units": "6037",
+        "nano": 0
+       },
+       "quantity": "424"
+      },
+      {
+       "price": {
+        "units": "6037",
+        "nano": 500000000
+       },
+       "quantity": "127"
+      },
+      {
+       "price": {
+        "units": "6038",
+        "nano": 0
+       },
+       "quantity": "402"
+      },
+      {
+       "price": {
+        "units": "6038",
+        "nano": 500000000
+       },
+       "quantity": "821"
+      },
+      {
+       "price": {
+        "units": "6039",
+        "nano": 0
+       },
+       "quantity": "116"
+      },
+      {
+       "price": {
+        "units": "6039",
+        "nano": 500000000
+       },
+       "quantity": "220"
+      },
+      {
+       "price": {
+        "units": "6040",
+        "nano": 0
+       },
+       "quantity": "1463"
+      },
+      {
+       "price": {
+        "units": "6040",
+        "nano": 500000000
+       },
+       "quantity": "937"
+      },
+      {
+       "price": {
+        "units": "6041",
+        "nano": 500000000
+       },
+       "quantity": "520"
+      },
+      {
+       "price": {
+        "units": "6042",
+        "nano": 0
+       },
+       "quantity": "16"
+      },
+      {
+       "price": {
+        "units": "6042",
+        "nano": 500000000
+       },
+       "quantity": "14"
+      },
+      {
+       "price": {
+        "units": "6043",
+        "nano": 0
+       },
+       "quantity": "2"
+      },
+      {
+       "price": {
+        "units": "6043",
+        "nano": 500000000
+       },
+       "quantity": "434"
+      },
+      {
+       "price": {
+        "units": "6044",
+        "nano": 0
+       },
+       "quantity": "283"
+      }
+     ],
+     "time": "2026-11-05T20:07:10.124826Z",
+     "limitUp": {
+      "units": "6516",
+      "nano": 500000000
+     },
+     "limitDown": {
+      "units": "5489",
+      "nano": 0
+     },
+     "instrumentUid": "02cfdf61-6298-4c0f-a9ca-9cabc82afaf3",
+     "orderBookType": "ORDERBOOK_TYPE_EXCHANGE",
+     "ticker": "LKOH",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909230265547000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-1",
+   "source": "ws",
+   "payload": {
+    "trade": {
+     "figi": "BBG004731032",
+     "direction": "TRADE_DIRECTION_BUY",
+     "price": {
+      "units": "6033",
+      "nano": 500000000
+     },
+     "quantity": "2",
+     "time": "2026-11-05T20:07:10.092667Z",
+     "instrumentUid": "02cfdf61-6298-4c0f-a9ca-9cabc82afaf3",
+     "tradeSource": "TRADE_SOURCE_EXCHANGE",
+     "ticker": "LKOH",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909230266131000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-1",
+   "source": "ws",
+   "payload": {
+    "orderbook": {
+     "figi": "BBG004730RP0",
+     "depth": 20,
+     "isConsistent": true,
+     "bids": [
+      {
+       "price": {
+        "units": "112",
+        "nano": 360000000
+       },
+       "quantity": "137"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 350000000
+       },
+       "quantity": "109"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 340000000
+       },
+       "quantity": "1143"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 330000000
+       },
+       "quantity": "1974"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 320000000
+       },
+       "quantity": "1393"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 310000000
+       },
+       "quantity": "2502"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 300000000
+       },
+       "quantity": "906"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 290000000
+       },
+       "quantity": "378"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 280000000
+       },
+       "quantity": "1574"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 270000000
+       },
+       "quantity": "554"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 260000000
+       },
+       "quantity": "1289"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 250000000
+       },
+       "quantity": "3538"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 240000000
+       },
+       "quantity": "1433"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 230000000
+       },
+       "quantity": "1565"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 220000000
+       },
+       "quantity": "2451"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 210000000
+       },
+       "quantity": "348"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 200000000
+       },
+       "quantity": "1798"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 190000000
+       },
+       "quantity": "726"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 180000000
+       },
+       "quantity": "337"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 170000000
+       },
+       "quantity": "327"
+      }
+     ],
+     "asks": [
+      {
+       "price": {
+        "units": "112",
+        "nano": 400000000
+       },
+       "quantity": "632"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 410000000
+       },
+       "quantity": "500"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 420000000
+       },
+       "quantity": "759"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 430000000
+       },
+       "quantity": "742"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 440000000
+       },
+       "quantity": "627"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 450000000
+       },
+       "quantity": "1731"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 460000000
+       },
+       "quantity": "1025"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 470000000
+       },
+       "quantity": "1946"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 480000000
+       },
+       "quantity": "2822"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 490000000
+       },
+       "quantity": "4283"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 500000000
+       },
+       "quantity": "853"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 510000000
+       },
+       "quantity": "1822"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 520000000
+       },
+       "quantity": "1022"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 530000000
+       },
+       "quantity": "622"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 540000000
+       },
+       "quantity": "326"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 550000000
+       },
+       "quantity": "478"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 560000000
+       },
+       "quantity": "323"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 570000000
+       },
+       "quantity": "492"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 580000000
+       },
+       "quantity": "324"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 590000000
+       },
+       "quantity": "323"
+      }
+     ],
+     "time": "2026-11-05T20:07:10.098946Z",
+     "limitUp": {
+      "units": "122",
+      "nano": 910000000
+     },
+     "limitDown": {
+      "units": "103",
+      "nano": 530000000
+     },
+     "instrumentUid": "962e2a95-02a9-4171-abd7-aa198dbe643a",
+     "orderBookType": "ORDERBOOK_TYPE_EXCHANGE",
+     "ticker": "GAZP",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909230298629000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-1",
+   "source": "ws",
+   "payload": {
+    "orderbook": {
+     "figi": "BBG004731032",
+     "depth": 20,
+     "isConsistent": true,
+     "bids": [
+      {
+       "price": {
+        "units": "6031",
+        "nano": 500000000
+       },
+       "quantity": "306"
+      },
+      {
+       "price": {
+        "units": "6031",
+        "nano": 0
+       },
+       "quantity": "91"
+      },
+      {
+       "price": {
+        "units": "6030",
+        "nano": 500000000
+       },
+       "quantity": "232"
+      },
+      {
+       "price": {
+        "units": "6030",
+        "nano": 0
+       },
+       "quantity": "110"
+      },
+      {
+       "price": {
+        "units": "6029",
+        "nano": 500000000
+       },
+       "quantity": "179"
+      },
+      {
+       "price": {
+        "units": "6029",
+        "nano": 0
+       },
+       "quantity": "287"
+      },
+      {
+       "price": {
+        "units": "6028",
+        "nano": 500000000
+       },
+       "quantity": "118"
+      },
+      {
+       "price": {
+        "units": "6028",
+        "nano": 0
+       },
+       "quantity": "223"
+      },
+      {
+       "price": {
+        "units": "6027",
+        "nano": 500000000
+       },
+       "quantity": "21"
+      },
+      {
+       "price": {
+        "units": "6027",
+        "nano": 0
+       },
+       "quantity": "663"
+      },
+      {
+       "price": {
+        "units": "6026",
+        "nano": 500000000
+       },
+       "quantity": "641"
+      },
+      {
+       "price": {
+        "units": "6026",
+        "nano": 0
+       },
+       "quantity": "234"
+      },
+      {
+       "price": {
+        "units": "6025",
+        "nano": 500000000
+       },
+       "quantity": "661"
+      },
+      {
+       "price": {
+        "units": "6025",
+        "nano": 0
+       },
+       "quantity": "422"
+      },
+      {
+       "price": {
+        "units": "6024",
+        "nano": 500000000
+       },
+       "quantity": "595"
+      },
+      {
+       "price": {
+        "units": "6024",
+        "nano": 0
+       },
+       "quantity": "35"
+      },
+      {
+       "price": {
+        "units": "6023",
+        "nano": 500000000
+       },
+       "quantity": "36"
+      },
+      {
+       "price": {
+        "units": "6023",
+        "nano": 0
+       },
+       "quantity": "404"
+      },
+      {
+       "price": {
+        "units": "6022",
+        "nano": 500000000
+       },
+       "quantity": "12"
+      },
+      {
+       "price": {
+        "units": "6022",
+        "nano": 0
+       },
+       "quantity": "78"
+      }
+     ],
+     "asks": [
+      {
+       "price": {
+        "units": "6033",
+        "nano": 500000000
+       },
+       "quantity": "27"
+      },
+      {
+       "price": {
+        "units": "6034",
+        "nano": 500000000
+       },
+       "quantity": "19"
+      },
+      {
+       "price": {
+        "units": "6035",
+        "nano": 0
+       },
+       "quantity": "59"
+      },
+      {
+       "price": {
+        "units": "6035",
+        "nano": 500000000
+       },
+       "quantity": "150"
+      },
+      {
+       "price": {
+        "units": "6036",
+        "nano": 0
+       },
+       "quantity": "130"
+      },
+      {
+       "price": {
+        "units": "6036",
+        "nano": 500000000
+       },
+       "quantity": "45"
+      },
+      {
+       "price": {
+        "units": "6037",
+        "nano": 0
+       },
+       "quantity": "424"
+      },
+      {
+       "price": {
+        "units": "6037",
+        "nano": 500000000
+       },
+       "quantity": "127"
+      },
+      {
+       "price": {
+        "units": "6038",
+        "nano": 0
+       },
+       "quantity": "402"
+      },
+      {
+       "price": {
+        "units": "6038",
+        "nano": 500000000
+       },
+       "quantity": "821"
+      },
+      {
+       "price": {
+        "units": "6039",
+        "nano": 0
+       },
+       "quantity": "116"
+      },
+      {
+       "price": {
+        "units": "6039",
+        "nano": 500000000
+       },
+       "quantity": "220"
+      },
+      {
+       "price": {
+        "units": "6040",
+        "nano": 0
+       },
+       "quantity": "1463"
+      },
+      {
+       "price": {
+        "units": "6040",
+        "nano": 500000000
+       },
+       "quantity": "937"
+      },
+      {
+       "price": {
+        "units": "6041",
+        "nano": 500000000
+       },
+       "quantity": "520"
+      },
+      {
+       "price": {
+        "units": "6042",
+        "nano": 0
+       },
+       "quantity": "16"
+      },
+      {
+       "price": {
+        "units": "6042",
+        "nano": 500000000
+       },
+       "quantity": "14"
+      },
+      {
+       "price": {
+        "units": "6043",
+        "nano": 0
+       },
+       "quantity": "2"
+      },
+      {
+       "price": {
+        "units": "6043",
+        "nano": 500000000
+       },
+       "quantity": "434"
+      },
+      {
+       "price": {
+        "units": "6044",
+        "nano": 0
+       },
+       "quantity": "283"
+      }
+     ],
+     "time": "2026-11-05T20:07:10.124826Z",
+     "limitUp": {
+      "units": "6516",
+      "nano": 500000000
+     },
+     "limitDown": {
+      "units": "5489",
+      "nano": 0
+     },
+     "instrumentUid": "02cfdf61-6298-4c0f-a9ca-9cabc82afaf3",
+     "orderBookType": "ORDERBOOK_TYPE_EXCHANGE",
+     "ticker": "LKOH",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909230711727000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-1",
+   "source": "ws",
+   "payload": {
+    "orderbook": {
+     "figi": "BBG004730RP0",
+     "depth": 20,
+     "isConsistent": true,
+     "bids": [
+      {
+       "price": {
+        "units": "112",
+        "nano": 360000000
+       },
+       "quantity": "137"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 350000000
+       },
+       "quantity": "109"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 340000000
+       },
+       "quantity": "1143"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 330000000
+       },
+       "quantity": "1974"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 320000000
+       },
+       "quantity": "1393"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 310000000
+       },
+       "quantity": "2502"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 300000000
+       },
+       "quantity": "906"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 290000000
+       },
+       "quantity": "378"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 280000000
+       },
+       "quantity": "1574"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 270000000
+       },
+       "quantity": "554"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 260000000
+       },
+       "quantity": "1289"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 250000000
+       },
+       "quantity": "3538"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 240000000
+       },
+       "quantity": "1433"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 230000000
+       },
+       "quantity": "1565"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 220000000
+       },
+       "quantity": "2451"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 210000000
+       },
+       "quantity": "348"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 200000000
+       },
+       "quantity": "1798"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 190000000
+       },
+       "quantity": "726"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 180000000
+       },
+       "quantity": "337"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 170000000
+       },
+       "quantity": "327"
+      }
+     ],
+     "asks": [
+      {
+       "price": {
+        "units": "112",
+        "nano": 400000000
+       },
+       "quantity": "608"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 410000000
+       },
+       "quantity": "500"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 420000000
+       },
+       "quantity": "759"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 430000000
+       },
+       "quantity": "742"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 440000000
+       },
+       "quantity": "627"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 450000000
+       },
+       "quantity": "1731"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 460000000
+       },
+       "quantity": "1025"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 470000000
+       },
+       "quantity": "1946"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 480000000
+       },
+       "quantity": "2822"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 490000000
+       },
+       "quantity": "4283"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 500000000
+       },
+       "quantity": "853"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 510000000
+       },
+       "quantity": "1822"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 520000000
+       },
+       "quantity": "1022"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 530000000
+       },
+       "quantity": "622"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 540000000
+       },
+       "quantity": "326"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 550000000
+       },
+       "quantity": "478"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 560000000
+       },
+       "quantity": "323"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 570000000
+       },
+       "quantity": "492"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 580000000
+       },
+       "quantity": "324"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 590000000
+       },
+       "quantity": "323"
+      }
+     ],
+     "time": "2026-11-05T20:07:10.598853Z",
+     "limitUp": {
+      "units": "122",
+      "nano": 910000000
+     },
+     "limitDown": {
+      "units": "103",
+      "nano": 530000000
+     },
+     "instrumentUid": "962e2a95-02a9-4171-abd7-aa198dbe643a",
+     "orderBookType": "ORDERBOOK_TYPE_EXCHANGE",
+     "ticker": "GAZP",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909230714606000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-2",
+   "source": "ws",
+   "payload": {
+    "orderbook": {
+     "figi": "BBG004730RP0",
+     "depth": 20,
+     "isConsistent": true,
+     "bids": [
+      {
+       "price": {
+        "units": "112",
+        "nano": 360000000
+       },
+       "quantity": "137"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 350000000
+       },
+       "quantity": "109"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 340000000
+       },
+       "quantity": "1143"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 330000000
+       },
+       "quantity": "1974"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 320000000
+       },
+       "quantity": "1393"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 310000000
+       },
+       "quantity": "2502"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 300000000
+       },
+       "quantity": "906"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 290000000
+       },
+       "quantity": "378"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 280000000
+       },
+       "quantity": "1574"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 270000000
+       },
+       "quantity": "554"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 260000000
+       },
+       "quantity": "1289"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 250000000
+       },
+       "quantity": "3538"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 240000000
+       },
+       "quantity": "1433"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 230000000
+       },
+       "quantity": "1565"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 220000000
+       },
+       "quantity": "2451"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 210000000
+       },
+       "quantity": "348"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 200000000
+       },
+       "quantity": "1798"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 190000000
+       },
+       "quantity": "726"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 180000000
+       },
+       "quantity": "337"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 170000000
+       },
+       "quantity": "327"
+      }
+     ],
+     "asks": [
+      {
+       "price": {
+        "units": "112",
+        "nano": 400000000
+       },
+       "quantity": "608"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 410000000
+       },
+       "quantity": "500"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 420000000
+       },
+       "quantity": "759"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 430000000
+       },
+       "quantity": "742"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 440000000
+       },
+       "quantity": "627"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 450000000
+       },
+       "quantity": "1731"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 460000000
+       },
+       "quantity": "1025"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 470000000
+       },
+       "quantity": "1946"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 480000000
+       },
+       "quantity": "2822"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 490000000
+       },
+       "quantity": "4283"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 500000000
+       },
+       "quantity": "853"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 510000000
+       },
+       "quantity": "1822"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 520000000
+       },
+       "quantity": "1022"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 530000000
+       },
+       "quantity": "622"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 540000000
+       },
+       "quantity": "326"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 550000000
+       },
+       "quantity": "478"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 560000000
+       },
+       "quantity": "323"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 570000000
+       },
+       "quantity": "492"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 580000000
+       },
+       "quantity": "324"
+      },
+      {
+       "price": {
+        "units": "112",
+        "nano": 590000000
+       },
+       "quantity": "323"
+      }
+     ],
+     "time": "2026-11-05T20:07:10.598853Z",
+     "limitUp": {
+      "units": "122",
+      "nano": 910000000
+     },
+     "limitDown": {
+      "units": "103",
+      "nano": 530000000
+     },
+     "instrumentUid": "962e2a95-02a9-4171-abd7-aa198dbe643a",
+     "orderBookType": "ORDERBOOK_TYPE_EXCHANGE",
+     "ticker": "GAZP",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909230717061000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-2",
+   "source": "ws",
+   "payload": {
+    "trade": {
+     "figi": "BBG004730N88",
+     "direction": "TRADE_DIRECTION_BUY",
+     "price": {
+      "units": "292",
+      "nano": 770000000
+     },
+     "quantity": "13",
+     "time": "2026-11-05T20:07:10.643874Z",
+     "instrumentUid": "e6123145-9665-43e0-8413-cd61b8aa9b13",
+     "tradeSource": "TRADE_SOURCE_EXCHANGE",
+     "ticker": "SBER",
+     "classCode": "TQBR"
+    }
+   }
+  },
+  {
+   "ts_local": 1793909230838080000,
+   "connection": "eu-local-moex-tbank-1793909227405606000-1",
+   "source": "ws",
+   "payload": {
+    "trade": {
+     "figi": "BBG004730N88",
+     "direction": "TRADE_DIRECTION_BUY",
+     "price": {
+      "units": "292",
+      "nano": 770000000
+     },
+     "quantity": "13",
+     "time": "2026-11-05T20:07:10.643874Z",
+     "instrumentUid": "e6123145-9665-43e0-8413-cd61b8aa9b13",
+     "tradeSource": "TRADE_SOURCE_EXCHANGE",
+     "ticker": "SBER",
+     "classCode": "TQBR"
+    }
+   }
+  }
+ ]
+}

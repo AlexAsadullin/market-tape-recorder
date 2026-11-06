@@ -4,9 +4,10 @@ WebSocket venues run ``redundant_connections`` independent connection slots; the
 through one earliest-arrival dedup, so any single connection can drop without losing data.
 Planned reconnects (connection age, daily rotation after midnight UTC, or a resync request) are
 *overlapping*: the replacement connection is opened and must deliver data before the old one is
-closed, which removes the re-subscription blind spot. A detected sequence gap triggers a REST
-snapshot (venues that need one, e.g. Binance) or an overlapping reconnect (venues that send the
-snapshot in-band on subscribe: Bybit, OKX).
+closed, which removes the re-subscription blind spot. A resync request triggers a REST
+snapshot when the adapter has one, otherwise an overlapping reconnect; T-Bank sends full
+order-book snapshots in-band, so it needs neither. REST sources (MOEX ISS and AlgoPack) run in
+``PollingVenueSession``.
 """
 
 from __future__ import annotations

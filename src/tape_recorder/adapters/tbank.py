@@ -10,6 +10,12 @@ configured symbol is resolved once through ``InstrumentsService/ShareBy`` (``res
 and ``apply_resolution``); the same answer reports the lot size and price tick, and a mismatch
 with config is logged, because sizes in the tape would otherwise be wrong.
 
+Exchange data only: the subscriptions and history requests ask for ``ORDERBOOK_TYPE_EXCHANGE``,
+``TRADE_SOURCE_EXCHANGE`` and ``CANDLE_SOURCE_EXCHANGE``, because T-Bank's defaults (``*_ALL`` /
+unspecified) mix in its own dealer book and weekend dealer trades, which are not MOEX data; a
+message that still reports a dealer source is dropped (first live run, 2026-11-05: the
+subscription answers said ``ORDERBOOK_TYPE_ALL`` when no type was sent).
+
 Quantities are lots and are converted to shares with the lot size; prices are ``Quotation``
 objects (``units + nano / 1e9``). T-Bank trades have no trade id or sequence number, so the dedup
 key of a trade is its full content (time to the microsecond, price, quantity and direction), and
@@ -19,6 +25,12 @@ REST history (``GetCandles``, ``GetLastTrades``, ``GetOrderBook``) is a ``POST``
 to ``{rest_url}{rest_service_prefix}.<Service>/<Method>``; the responses are parsed by
 ``parse_rest`` with the same record builders as the stream. Message shapes follow the protobuf
 contracts in ``docs/tinvest-contracts`` of the umbrella repo (read 2026-10-29).
+
+Safety: the token is used for market data only; trading happens in the platform's own sandbox,
+never through T-Bank. Every REST call goes through ``_rest``, which accepts only the read-only
+methods in ``ALLOWED_REST_METHODS``, and the adapter refuses a stream URL other than
+``MarketDataStream`` or any sandbox host. Order, stop-order, sandbox, operations and account
+services are therefore unreachable from this adapter (``tests/unit/test_tbank_safety.py``).
 """
 
 from __future__ import annotations
@@ -53,6 +65,32 @@ HISTORY_INTERVALS: dict[str, tuple[str, int]] = {
     "CANDLE_INTERVAL_DAY": ("1d", 86_400),
 }
 SUBSCRIBE = "SUBSCRIPTION_ACTION_SUBSCRIBE"
+EXCHANGE_BOOK = "ORDERBOOK_TYPE_EXCHANGE"
+EXCHANGE_TRADES = "TRADE_SOURCE_EXCHANGE"
+EXCHANGE_CANDLES = "CANDLE_SOURCE_EXCHANGE"
+DEALER_SOURCES = frozenset(
+    {"ORDERBOOK_TYPE_DEALER", "TRADE_SOURCE_DEALER", "CANDLE_SOURCE_DEALER_WEEKEND"}
+)
+
+# Read-only market-data and reference methods; anything else is refused before a request exists.
+ALLOWED_REST_METHODS: frozenset[str] = frozenset(
+    {
+        "InstrumentsService/ShareBy",
+        "InstrumentsService/Shares",
+        "InstrumentsService/Etfs",
+        "InstrumentsService/GetAssetBy",
+        "MarketDataService/GetCandles",
+        "MarketDataService/GetLastTrades",
+        "MarketDataService/GetOrderBook",
+    }
+)
+STREAM_PATH = "MarketDataStreamService/MarketDataStream"
+
+
+class ForbiddenEndpointError(ValueError):
+    """An attempt to build a T-Bank call outside the read-only market-data allowlist."""
+
+
 SUCCESS = "SUBSCRIPTION_STATUS_SUCCESS"
 
 _CAMEL = re.compile(r"(?<!^)(?=[A-Z])")
@@ -82,6 +120,10 @@ class TBankAdapter:
             raise ValueError(f"{venue}: ws_url and rest_url are required")
         if settings.rest_service_prefix is None:
             raise ValueError(f"{venue}: rest_service_prefix is required")
+        if not settings.ws_url.endswith(STREAM_PATH):
+            raise ForbiddenEndpointError(f"{venue}: ws_url must be the {STREAM_PATH} stream")
+        if "sandbox" in settings.ws_url.lower() or "sandbox" in settings.rest_url.lower():
+            raise ForbiddenEndpointError(f"{venue}: the T-Bank sandbox is not used by the recorder")
         for native, sym in settings.symbols.items():
             if not sym.board:
                 raise ValueError(f"{venue}/{native}: board (the T-Bank class code) is required")
@@ -127,7 +169,10 @@ class TBankAdapter:
                 {
                     "subscribeOrderBookRequest": {
                         "subscriptionAction": SUBSCRIBE,
-                        "instruments": [{"instrumentId": i, "depth": depth} for i in ids],
+                        "instruments": [
+                            {"instrumentId": i, "depth": depth, "orderBookType": EXCHANGE_BOOK}
+                            for i in ids
+                        ],
                     }
                 }
             )
@@ -137,6 +182,7 @@ class TBankAdapter:
                     "subscribeTradesRequest": {
                         "subscriptionAction": SUBSCRIBE,
                         "instruments": [{"instrumentId": i} for i in ids],
+                        "tradeSource": EXCHANGE_TRADES,
                     }
                 }
             )
@@ -148,6 +194,7 @@ class TBankAdapter:
                         "subscriptionAction": SUBSCRIBE,
                         "instruments": [{"instrumentId": i, "interval": interval} for i in ids],
                         "waitingClose": False,
+                        "candleSourceType": EXCHANGE_CANDLES,
                     }
                 }
             )
@@ -175,6 +222,8 @@ class TBankAdapter:
     # -- REST: resolution and history ---------------------------------------------------------
 
     def _rest(self, method: str, tag: str, native: str, body: dict[str, Any]) -> RestRequest:
+        if method not in ALLOWED_REST_METHODS:
+            raise ForbiddenEndpointError(f"{self.venue}: {method} is not a read-only method")
         assert self.settings.rest_url is not None and self.settings.rest_service_prefix
         url = f"{self.settings.rest_url}{self.settings.rest_service_prefix}.{method}"
         return RestRequest(
@@ -224,6 +273,18 @@ class TBankAdapter:
         if tick is not None and sym.tick is not None and abs(tick - sym.tick) > 1e-12:
             log.warning("tick_mismatch", venue=self.venue, symbol=sym.symbol, exchange=tick)
 
+    def etfs_request(self, status: str = "INSTRUMENT_STATUS_BASE") -> RestRequest:
+        """``InstrumentsService/Etfs``: ``BASE`` = tradable via the API, ``ALL`` = every listing."""
+        return self._rest("InstrumentsService/Etfs", "etfs", "", {"instrumentStatus": status})
+
+    def shares_request(self, status: str = "INSTRUMENT_STATUS_ALL") -> RestRequest:
+        """``InstrumentsService/Shares``: every share listing (a listing method, 15 calls/min)."""
+        return self._rest("InstrumentsService/Shares", "shares", "", {"instrumentStatus": status})
+
+    def asset_request(self, asset_uid: str) -> RestRequest:
+        """``InstrumentsService/GetAssetBy``: the asset of a fund, with its brand and company."""
+        return self._rest("InstrumentsService/GetAssetBy", "asset", "", {"id": asset_uid})
+
     def candles_request(
         self, native: str, start_ns: int, end_ns: int, interval: str = "CANDLE_INTERVAL_1_MIN"
     ) -> RestRequest:
@@ -237,6 +298,7 @@ class TBankAdapter:
                 "from": ns_to_iso(start_ns),
                 "to": ns_to_iso(end_ns),
                 "interval": interval,
+                "candleSourceType": EXCHANGE_CANDLES,
             },
         )
 
@@ -250,7 +312,7 @@ class TBankAdapter:
                 "instrumentId": self._instrument_id(native, sym),
                 "from": ns_to_iso(start_ns),
                 "to": ns_to_iso(end_ns),
-                "tradeSource": "TRADE_SOURCE_EXCHANGE",
+                "tradeSource": EXCHANGE_TRADES,
             },
         )
 
@@ -260,12 +322,20 @@ class TBankAdapter:
             "MarketDataService/GetOrderBook",
             "orderbook",
             native,
-            {"instrumentId": self._instrument_id(native, sym), "depth": self.settings.book_depth},
+            {
+                "instrumentId": self._instrument_id(native, sym),
+                "depth": self.settings.book_depth,
+            },
         )
 
     # -- parsing ------------------------------------------------------------------------------
 
     def _symbol_of(self, msg: dict[str, Any]) -> SymbolSettings | None:
+        source = (
+            msg.get("order_book_type") or msg.get("trade_source") or msg.get("candle_source_type")
+        )
+        if source in DEALER_SOURCES:
+            return None  # T-Bank's own dealer market, not MOEX
         for key in (
             msg.get("instrument_uid"),
             msg.get("figi"),
@@ -383,7 +453,11 @@ class TBankAdapter:
             case "orderbook":
                 return self._orderbook(doc, sym, factory, "orderbook_ts")
             case "last_trades":
-                return [self._trade(t, sym, factory) for t in doc.get("trades", [])]
+                return [
+                    self._trade(t, sym, factory)
+                    for t in doc.get("trades", [])
+                    if t.get("trade_source") not in DEALER_SOURCES
+                ]
             case "candles":
                 body = snake_keys(orjson.loads(request.body or "{}"))
                 interval = HISTORY_INTERVALS.get(str(body.get("interval")))
@@ -392,6 +466,6 @@ class TBankAdapter:
                 return [
                     self._candle(c, sym, factory, interval)
                     for c in doc.get("candles", [])
-                    if c.get("is_complete", True)
+                    if c.get("is_complete", True) and c.get("candle_source") not in DEALER_SOURCES
                 ]
         return []

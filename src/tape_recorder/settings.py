@@ -12,7 +12,7 @@ from contextvars import ContextVar
 from pathlib import Path
 from typing import Any, Literal
 
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import (
     BaseSettings,
@@ -83,6 +83,10 @@ class DedupSettings(_Model):
 class HttpSettings(_Model):
     timeout_s: float = Field(gt=0)
     user_agent: str
+    # Public-key pins per host (``sha256/<base64>`` of the leaf SPKI; several for rotation). A
+    # pinned host is accepted by its pin and SAN instead of a chain (see pinning.py); all other
+    # hosts keep certifi validation. T-Bank chains to a root the user does not trust.
+    pins: dict[str, list[str]] = Field(default_factory=dict)
 
 
 class SymbolSettings(_Model):
@@ -254,6 +258,58 @@ class DemoSettings(_Model):
     regions: dict[str, DemoRegion]
 
 
+class ReferenceSettings(_Model):
+    """``tape instruments-ref``: reference files derived from the T-Bank instruments service."""
+
+    dir: str = "reference"
+    # A fund is the broker's own (0% commission on the platform) when one of these fields of its
+    # asset (``InstrumentsService/GetAssetBy``) matches the pattern, case-insensitively.
+    zero_fee_fields: list[str] = Field(
+        default_factory=lambda: ["asset.brand.company", "asset.brand.name"]
+    )
+    zero_fee_pattern: str = r"т-капитал|t-capital|тинькофф|tinkoff"
+    min_request_interval_s: float = Field(default=0.35, ge=0)  # instruments: 200 calls/min
+
+
+class DownloadSettings(_Model):
+    """``tape universe`` and ``tape download``: bulk history for the whole MOEX universe.
+
+    Requests are paced to ``rate_fraction`` of the limit T-Bank reports in ``x-ratelimit-limit``
+    (600 market-data calls per minute documented), so the recorder keeps headroom on the same
+    token. ``nice`` is added to the process niceness, and while the recorder's ``/v1/load``
+    reports ``pressure: high`` no new request is started.
+    """
+
+    dir: str = "download"  # checkpoints/ and reports/ inside the project data subtree
+    universe_file: str = "universe_moex.json"
+    i2_instruments_file: str = "moex_instruments_i2.jsonl"
+    share_boards: list[str] = Field(default_factory=lambda: ["TQBR"])
+    fund_boards: list[str] = Field(default_factory=lambda: ["TQTF"])
+    # Shares listing status: ALL (~12 MB, every exchange) is cut off by the server mid-body,
+    # BASE (tradable through the API) covers the TQBR board.
+    shares_status: str = "INSTRUMENT_STATUS_BASE"
+    workers: int = Field(default=8, ge=1)
+    rate_fraction: float = Field(default=0.8, gt=0, le=1)
+    default_limit_per_min: int = Field(default=600, gt=0)
+    listing_interval_s: float = Field(default=5.0, ge=0)  # Shares/Etfs: 15 calls per minute
+    max_attempts: int = Field(default=6, ge=1)
+    backoff_initial_s: float = Field(default=1.0, ge=0)
+    backoff_max_s: float = Field(default=60.0, gt=0)
+    commit_interval_s: float = Field(default=600.0, gt=0)
+    progress_interval_s: float = Field(default=30.0, gt=0)
+    nice: int = Field(default=10, ge=0, le=19)
+    recorder_load_url: str | None = "http://127.0.0.1:8602/v1/load"
+    probe_interval_s: float = Field(default=5.0, gt=0)
+    yield_sleep_s: float = Field(default=10.0, gt=0)
+    minute_days: int = Field(default=365, gt=0)
+    daily_span_days: int = Field(default=2190, gt=0)  # documented maximum: 6 years per request
+    history_start: str = "1990-01-01"
+    iss_fallback: bool = True
+    iss_min_request_interval_s: float = Field(default=0.25, ge=0)
+    calendar_threshold: float = Field(default=0.5, gt=0, le=1)
+    part_index_gap: int = Field(default=1000, ge=0)
+
+
 class Settings(BaseSettings):
     """Root settings object; build it with :func:`load_settings`."""
 
@@ -281,6 +337,8 @@ class Settings(BaseSettings):
     backfill: BackfillSettings
     logging: LoggingSettings
     demo: DemoSettings
+    reference: ReferenceSettings = Field(default_factory=ReferenceSettings)
+    download: DownloadSettings = Field(default_factory=DownloadSettings)
 
     @classmethod
     def settings_customise_sources(
@@ -326,9 +384,12 @@ def load_settings(config_file: Path | None = None, **overrides: Any) -> Settings
     """Load settings from YAML (``TAPE_CONFIG_FILE`` or the repository default) plus env.
 
     ``.env`` is also loaded into the process environment (without overriding it), because API
-    tokens are read from the variable named by ``token_env``, not from a settings field.
+    tokens are read from the variable named by ``token_env``, not from a settings field. The file
+    is looked up from the working directory (``usecwd``): python-dotenv's default search starts at
+    this module's directory and so found the repository ``.env`` with the real token even when
+    the tests chdir away from the repository.
     """
-    load_dotenv(override=False)
+    load_dotenv(find_dotenv(usecwd=True), override=False)
     path = config_file or Path(os.environ.get(CONFIG_FILE_ENV, str(DEFAULT_CONFIG_FILE)))
     token = _yaml_file.set(path)
     try:

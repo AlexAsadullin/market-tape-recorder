@@ -8,14 +8,16 @@ channel          key
 trades           ``trade_id``
 book_delta       ``seq`` (all levels of one message share it)
 book_snapshot    ``snapshot_id``
-funding          ``ts_exchange``, ``rate``, ``mark_price``
-liquidations     ``ts_exchange``, ``side``, ``price``, ``size``
-open_interest    ``ts_exchange``, ``open_interest``
+candles          ``interval``, ``ts_open``, ``close``, ``volume``
+trading_status   ``ts_exchange``, ``status``
+Super Candles    ``ts_exchange`` (``tradestats``, ``orderstats``, ``obstats``)
 =============== ==================================================
 
+``KEY_COLUMNS`` also keys the legacy v0.1 channels that the schema keeps so old tapes load.
+
 For every key the region with the smallest ``ts_local`` wins and all its rows for that key are
-kept, so a book message is never split across regions. Rows whose key is null (no exchange
-timestamp, e.g. Hyperliquid asset contexts) cannot be matched and are taken from the primary
+kept, so a book message is never split across regions. Rows whose key is null (for example
+a status row without an exchange timestamp) cannot be matched and are taken from the primary
 region. Per-message arrival times of both regions are written as latency distributions.
 """
 

@@ -2,11 +2,14 @@
 
 Records are buffered per partition ``venue/channel/symbol/date`` (date of ``ts_local``, UTC) and
 written as row groups into an in-progress file under ``staging/``. A part is finalised by closing
-the Parquet footer, fsync-ing, and ``os.replace``-ing it into the tape tree, which is atomic on one
+the Parquet footer, fsync-ing, and hard-linking it into the tape tree, which is atomic on one
 file system. Readers of ``tape/`` therefore only ever see complete ``part-<n>.parquet`` files.
 
-One writer process per output root is assumed (part numbers are allocated by scanning the
-partition directory).
+Part numbers are allocated by scanning the partition directory. Finalisation never overwrites:
+the part is hard-linked to its final name, which fails if the name exists, and then takes the next
+free number. So the recorder and a concurrent ``tape download`` can share one tape root; the
+download also starts its numbers ``index_gap`` above the existing ones, so a recorder that
+reserved a number before the download's part appeared does not collide with it either.
 """
 
 from __future__ import annotations
@@ -101,8 +104,16 @@ class _Buffer:
 class TapeWriter:
     """See module docstring. Not thread-safe; owned by one event loop."""
 
-    def __init__(self, root: Path, staging: Path, settings: WriterSettings, clock: Clock) -> None:
+    def __init__(
+        self,
+        root: Path,
+        staging: Path,
+        settings: WriterSettings,
+        clock: Clock,
+        index_gap: int = 0,
+    ) -> None:
         self.root = root
+        self.index_gap = index_gap
         self.staging = staging
         self.settings = settings
         self._clock = clock
@@ -176,6 +187,8 @@ class TapeWriter:
         final_dir = self.root / key.relative_dir()
         final_dir.mkdir(parents=True, exist_ok=True)
         index = next_part_index(final_dir, self._reserved[key])
+        if self.index_gap and not self._reserved[key] and index > 0:
+            index += self.index_gap
         self._reserved[key].add(index)
         staging_path = self.staging / f"{uuid.uuid4().hex}-part-{index}.parquet{IN_PROGRESS_SUFFIX}"
         writer = pq.ParquetWriter(
@@ -190,7 +203,16 @@ class TapeWriter:
         part.writer.close()
         with part.staging_path.open("rb") as fh:
             os.fsync(fh.fileno())
-        part.staging_path.replace(part.final_path)
-        fsync_dir(part.final_path.parent)
-        self.finalised.append(part.final_path)
-        log.debug("part_finalised", path=str(part.final_path), rows=part.rows)
+        final = part.final_path
+        while True:
+            try:
+                os.link(part.staging_path, final)  # atomic and exclusive: never overwrites
+                break
+            except FileExistsError:
+                index = next_part_index(final.parent, self._reserved[key])
+                self._reserved[key].add(index)
+                final = final.with_name(f"part-{index}.parquet")
+        part.staging_path.unlink()
+        fsync_dir(final.parent)
+        self.finalised.append(final)
+        log.debug("part_finalised", path=str(final), rows=part.rows)

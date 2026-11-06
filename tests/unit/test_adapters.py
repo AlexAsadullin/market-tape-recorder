@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from datetime import date
+from pathlib import Path
 
 import orjson
 import pytest
@@ -9,7 +10,7 @@ import pytest
 from tape_recorder.adapters import ParsedEvent, RecordFactory, VenueAdapter, build_adapter
 from tape_recorder.adapters.moex import MoexIssAdapter
 from tape_recorder.adapters.tbank import TBankAdapter, quotation, snake_keys
-from tape_recorder.frames import Frame
+from tape_recorder.frames import Frame, load_frames
 from tape_recorder.schema import (
     BookSnapshotLevel,
     Candle,
@@ -23,6 +24,7 @@ from tape_recorder.settings import Settings
 from tape_recorder.timeutil import NS_PER_S, rfc3339_to_ns
 
 Frames = Callable[[str], list[Frame]]
+FIXTURES_DIR = Path(__file__).resolve().parents[1] / "fixtures"
 
 
 def parse_all(adapter: VenueAdapter, frames: list[Frame]) -> list[ParsedEvent]:
@@ -79,7 +81,10 @@ def test_tbank_subscriptions_and_auth(make_settings: Callable[..., Settings]) ->
     ]
     book = msgs[0]["subscribeOrderBookRequest"]
     assert book["subscriptionAction"] == "SUBSCRIPTION_ACTION_SUBSCRIBE"
-    assert {"instrumentId": "SBER_TQBR", "depth": 20} in book["instruments"]
+    sber = {"instrumentId": "SBER_TQBR", "depth": 20, "orderBookType": "ORDERBOOK_TYPE_EXCHANGE"}
+    assert sber in book["instruments"]
+    assert msgs[1]["subscribeTradesRequest"]["tradeSource"] == "TRADE_SOURCE_EXCHANGE"
+    assert msgs[2]["subscribeCandlesRequest"]["candleSourceType"] == "CANDLE_SOURCE_EXCHANGE"
     assert "secret-token" not in "".join(a.subscribe_messages())
 
 
@@ -288,6 +293,14 @@ def test_algopack_cursors_advance(settings: Settings, venue_frames: Frames) -> N
     assert ("from", "2026-10-20 15:00:00") in candles.params
 
 
+def test_iss_first_candle_poll_starts_today(settings: Settings) -> None:
+    # Without ``from`` ISS answers with the oldest candles of the security (2011 for SBER).
+    noon_msk = rfc3339_to_ns("2026-11-05T09:00:00Z")
+    a = MoexIssAdapter("moex-iss", settings.venues["moex-iss"], clock=lambda: noon_msk)
+    candles = next(r for r in a.poll_requests() if r.tag == "candles")
+    assert ("from", "2026-11-05 00:00:00") in candles.params
+
+
 def test_algopack_full_page_is_backlogged(settings: Settings, venue_frames: Frames) -> None:
     a = adapter_for(settings, "moex-algopack")
     frame = venue_frames("moex-algopack")[0]
@@ -313,3 +326,84 @@ def test_bad_payload_raises_for_pipeline_to_count(settings: Settings) -> None:
     bad = '{"trades": {"columns": ["TRADENO"], "data": [[1]]}}'
     with pytest.raises(KeyError):
         a.parse_rest(frame_req, bad, RecordFactory("moex-algopack", "msk", "c", 1))
+
+
+def test_tbank_real_payloads_2026_11_05(settings: Settings) -> None:
+    from pathlib import Path
+
+    from tape_recorder.frames import load_frames
+
+    path = Path(__file__).resolve().parents[1] / "fixtures" / "real" / "moex-tbank-2026-11-05.json"
+    a = adapter_for(settings, "moex-tbank")
+    events = parse_all(a, load_frames(path))
+    trades = records(events, Trade)
+    books = records(events, BookSnapshotLevel)
+    assert len(trades) == 6 and len(records(events, Candle)) == 3
+    assert len(records(events, TradingStatus)) == 3
+    assert len(books) == 6 * 40  # 20 levels per side
+    assert {t.symbol for t in trades} <= {"SBER-RUB-TQBR", "GAZP-RUB-TQBR", "LKOH-RUB-TQBR"}
+    gazp = [b for b in books if b.symbol == "GAZP-RUB-TQBR"]
+    assert gazp and all(b.size % 10 == 0 for b in gazp)  # lots of 10 shares
+
+
+def test_tbank_dealer_messages_are_dropped(settings: Settings) -> None:
+    a = adapter_for(settings, "moex-tbank")
+    msg = {
+        "trade": {
+            "ticker": "SBER",
+            "classCode": "TQBR",
+            "direction": "TRADE_DIRECTION_BUY",
+            "price": {"units": "290"},
+            "quantity": "1",
+            "time": "2026-11-07T10:00:00Z",
+            "tradeSource": "TRADE_SOURCE_DEALER",
+        }
+    }
+    assert a.parse_ws(orjson.dumps(msg).decode(), RecordFactory("v", "r", "c", 1)) == []
+
+
+# -- T-Bank real payloads (first live run, 2026-11-05) -------------------------------------------
+
+REAL_TBANK = FIXTURES_DIR / "real" / "moex-tbank-2026-11-05.json"
+
+
+def test_tbank_real_payloads_parse(settings: Settings) -> None:
+    a = adapter_for(settings, "moex-tbank")
+    events = parse_all(a, load_frames(REAL_TBANK))
+    books = records(events, BookSnapshotLevel)
+    trades = records(events, Trade)
+    candles = records(events, Candle)
+    statuses = records(events, TradingStatus)
+    assert len(trades) == 6 and len(candles) == 3 and len(statuses) == 3
+    assert {b.symbol for b in books} <= {"SBER-RUB-TQBR", "GAZP-RUB-TQBR", "LKOH-RUB-TQBR"}
+    assert len(books) == 6 * 40  # 20 bids + 20 asks per message
+    gazp = [b for b in books if b.symbol == "GAZP-RUB-TQBR"]
+    # GAZP is 10 shares per lot (ShareBy lot 10), so every size is a multiple of 10.
+    assert gazp and all(b.size % 10 == 0 for b in gazp)
+    assert all(c.interval == "1m" for c in candles)
+    assert {s.status for s in statuses} == {"SECURITY_TRADING_STATUS_NORMAL_TRADING"}
+
+
+def test_tbank_asks_for_exchange_data_only(settings: Settings) -> None:
+    a = adapter_for(settings, "moex-tbank")
+    assert isinstance(a, TBankAdapter)
+    msgs = [orjson.loads(m) for m in a.subscribe_messages()]
+    book = msgs[0]["subscribeOrderBookRequest"]["instruments"][0]
+    assert book["orderBookType"] == "ORDERBOOK_TYPE_EXCHANGE"
+    assert msgs[1]["subscribeTradesRequest"]["tradeSource"] == "TRADE_SOURCE_EXCHANGE"
+    assert msgs[2]["subscribeCandlesRequest"]["candleSourceType"] == "CANDLE_SOURCE_EXCHANGE"
+    body = orjson.loads(a.candles_request("SBER", 0, NS_PER_S).body or "{}")
+    assert body["candleSourceType"] == "CANDLE_SOURCE_EXCHANGE"
+
+
+def test_tbank_drops_dealer_messages(settings: Settings) -> None:
+    a = adapter_for(settings, "moex-tbank")
+    frames = load_frames(REAL_TBANK)
+    for f in frames[:3]:  # ShareBy answers map the uids
+        assert f.request is not None
+        a.parse_rest(f.request, f.payload, RecordFactory("v", "r", "c", 1))
+    trade = next(orjson.loads(f.payload) for f in frames if '"trade"' in f.payload[:12])
+    f = RecordFactory("v", "r", "c", 1)
+    assert a.parse_ws(orjson.dumps(trade).decode(), f)
+    trade["trade"]["tradeSource"] = "TRADE_SOURCE_DEALER"
+    assert a.parse_ws(orjson.dumps(trade).decode(), f) == []

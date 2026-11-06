@@ -11,6 +11,7 @@ import httpx
 import orjson
 from websockets.asyncio.server import ServerConnection, serve
 
+from tape_recorder.adapters.tbank import STREAM_PATH
 from tape_recorder.frames import Frame, iter_frame_files, load_frames
 from tape_recorder.quality.certify import certify_tree
 from tape_recorder.recorder import record
@@ -58,7 +59,7 @@ async def test_record_writes_tape_raw_log_and_serves_status(
     venues = dict(s.venues)
     venues["moex-tbank"] = venue.model_copy(
         update={
-            "ws_url": f"ws://127.0.0.1:{ws_port}",
+            "ws_url": f"ws://127.0.0.1:{ws_port}/ws/{STREAM_PATH}",
             "rest_url": f"http://127.0.0.1:{free_port()}/rest/",
             "symbols": symbols,
         }

@@ -1,126 +1,105 @@
 # HANDOVER: market-tape-recorder (Tradeq I1)
 
-Last updated 2026-10-29 by the session that did the MOEX pivot (see "MOEX pivot" below; it overrides the
-older sections wherever they disagree).
+Last updated 2026-11-05 by the session of the first live run. Nothing of this session is committed.
 
 ## Goal
 
-The project is a self-hosted recorder for market data from crypto exchanges (Binance, Bybit, OKX), the Hyperliquid
-on-chain perp DEX and MOEX. It writes everything in one normalised Parquet tape schema (contract 6.2) and issues a
-quality certificate for each instrument-day. The spec is in `../prompts/02-market-tape-recorder.md`. Platform rules
-are in `../prompts/00-platform-conventions.md`, and the README and report rules are in
-`../prompts/11-readme-and-research-report-standards.md`.
-Other projects use the tape: I2, S3, I6, I5 and S1. The default port is 8602.
+Self-hosted recorder for Moscow Exchange market data (MOEX only since 2026-10-29). Sources: T-Bank Invest API
+(`moex-tbank`, WebSocket stream + REST), MOEX AlgoPack (`moex-algopack`, paid REST) and public ISS
+(`moex-iss`, 15-minute delay, disabled by default). One normalised Parquet tape (contract 6.2 revision 2)
+and a quality certificate per instrument-day. Spec: `../prompts/02-market-tape-recorder.md` (revision 2);
+platform rules: `../prompts/00-platform-conventions.md`; vendor facts: `../docs/moex-sources.md`; T-Invest
+protobuf contracts: `../docs/tinvest-contracts/`. Consumers: I2, S3, I6, I5, S1. Status port 8602.
 
-Still to do: write `docs/report.md`, which needs a working `make report`, and a lean README. The README is currently 1 line.
+User rule: the T-Bank token is ONLY for market-data download. Trading happens in the platform's local
+sandbox, never through T-Bank. Never print, log or commit the token.
 
 ## Stack
 
-Python 3.13, a uv-managed `.venv`, and pins from `../constraints.txt`. The project uses websockets 17 (direct venue
-clients), httpx (MOEX ISS REST), pyarrow, pydantic and pydantic-settings, typer (the `tape` CLI), FastAPI and uvicorn
-(the status service), structlog, orjson and sortedcontainers. The `bench` dependency group adds cryptofeed 3.0.1,
-which is used only as an analog in the report experiments. Settings come from `config/settings.yaml` and can be
-overridden with `TAPE_*` env variables. The data root is `$TRADEQ_DATA_DIR/market-tape-recorder/`.
-
-## Architecture and data flow
-
-Raw frames arrive from the transport (`transport.py`) inside a resilient session (`session.py`: reconnect with backoff,
-overlapping rotation, resync). From there they go through the venue adapter (`adapters/*.py`, which parse frames into
-records and apply sequencing rules), dedup (`dedup.py`, earliest arrival across redundant connections) and the writer
-(`writer.py`, partitioned Parquet with atomic finalisation). `pipeline.py` holds that shared path, which is used by
-both live recording and `replay.py`. `quality/certify.py` reads the tape back and issues a certificate per
-instrument-day (gaps, sequencing, coverage and clock skew). `merge.py` merges two regional captures, and `archive.py`
-builds monthly archives.
+Python 3.13, uv-managed `.venv`, pins from `../constraints.txt`. websockets 17, httpx, pyarrow, pydantic +
+pydantic-settings, typer (`tape` CLI), FastAPI/uvicorn (status), structlog, orjson, sortedcontainers.
+Settings: `config/settings.yaml`, overridden by `TAPE_*` env; tokens only from the env variable named by
+`venues.<v>.token_env`. Data root `$TRADEQ_DATA_DIR/market-tape-recorder/`.
 
 ## Files
 
 | Path | Purpose |
 |---|---|
-| src/tape_recorder/adapters/{binance,bybit,okx,hyperliquid,moex}.py | Venue wire-format parsers behind the `VenueAdapter` protocol (base.py) |
-| src/tape_recorder/session.py | Live sessions: backoff, overlapping or naive rotation, resubscription |
-| src/tape_recorder/sequencing.py | Per-venue order-book delta continuity rules (pure functions) |
-| src/tape_recorder/book.py | L2 book reconstructed from snapshots and deltas |
-| src/tape_recorder/schema.py | Contract 6.2 Arrow schema |
-| src/tape_recorder/writer.py, reader in quality/reader.py | Parquet tape write and read |
-| src/tape_recorder/quality/certify.py, certificate.py, intervals.py | Quality certificate (contract 6.2) |
-| src/tape_recorder/faults.py | Deterministic fault injection (gaps, duplicates, latency) for tests and experiments |
-| src/tape_recorder/merge.py, archive.py, replay.py, rawlog.py | Region merge, monthly archive, offline replay, raw frame log |
-| src/tape_recorder/recorder.py, service.py, monitor.py | `tape record`, status endpoint, per-stream health |
-| src/tape_recorder/demo.py | `make reproduce`: offline demo with two simulated regions |
-| experiments/synthetic.py | UNTRACKED. Synthetic L2 streams in real venue wire formats |
-| experiments/stats.py | UNTRACKED. Interval estimates and two-sample tests for the report tables |
-| experiments/config.py + config/report.yaml | UNTRACKED. Typed experiment parameters (seed 20261022, 10000 bootstrap resamples) |
-| experiments/detection.py | UNTRACKED. Experiment 1: does each method (certifier, gap monitor, cryptofeed) detect one injected fault per stream |
-| experiments/cryptofeed_probe.py | UNTRACKED. Runs cryptofeed's own Binance book handler offline on the same frames |
-| experiments/rotation.py | UNTRACKED. Experiment 2: the blind interval of a planned reconnect, overlapping vs naive rotation, on a live session against a fake server |
-| tests/unit, tests/integration, tests/live | 79 offline tests; 6 live tests deselected by default (`-m live`) |
+| src/tape_recorder/adapters/tbank.py | T-Bank stream + REST; `ALLOWED_REST_METHODS` read-only allowlist, `ForbiddenEndpointError` |
+| src/tape_recorder/adapters/moex.py | AlgoPack and ISS polling (TRADENO, SEQNUM, candle cursor from today 00:00 MSK) |
+| src/tape_recorder/pinning.py | leaf SPKI pinning (`http.pins`), `tape pin-show` helpers |
+| src/tape_recorder/reference.py | `tape instruments-ref`: zero-fee fund list (Etfs + GetAssetBy, brand rule) |
+| src/tape_recorder/transport.py | websockets/httpx; `TlsPolicy` (certifi, or the pin for pinned hosts), `http_client` |
+| src/tape_recorder/session.py, recorder.py, service.py, monitor.py | live sessions, `tape record`, `/v1/load` |
+| src/tape_recorder/history.py | `tape backfill` (T-Bank GetCandles, AlgoPack candles and Super Candles) |
+| src/tape_recorder/universe.py, download.py | `tape universe`, `tape download` (bulk history: pacing, retries, checkpoints, quality report) |
+| ../scripts/download-all.sh (umbrella) | the whole download chain, then `pit follow --once` |
+| src/tape_recorder/schema.py, writer.py, quality/ | contract 6.2 schema (keeps v0.1 crypto channels on purpose), Parquet writer, certificate |
+| src/tape_recorder/merge.py, archive.py, replay.py, rawlog.py, demo.py | region merge, archive, replay, raw log, `make reproduce` |
+| tests/unit/test_tbank_safety.py | fails if an order/sandbox/operations/account call becomes reachable |
+| tests/fixtures/venues/*.json, tests/fixtures/reference/tbank_etfs.json | documented-shape fixtures (demo and unit tests) |
+| tests/fixtures/real/moex-tbank-2026-11-05.json | real T-Bank excerpt of the first live run (no headers) |
+| tests/unit/test_pinning.py | pin match, key change, wrong host, unpinned hosts, pin-show sends nothing |
 
-## State at handover
+`experiments/` in the working tree holds only an ignored `__pycache__`; the v0.1 experiments are in git
+history (`e845dbc`), and `docs/report.md` carries an "outdated" banner.
 
-Updated 2026-10-23 by the subagent that finished the repo.
+## State
 
-1. Green: 83 tests passed and 6 live tests deselected, coverage is 94%, and ruff and mypy are clean on src, tests and experiments.
-2. `make report` works. It runs `python -m experiments` (experiments/__main__.py) with the bench group and executes detection (3600 runs), rotation (60 live-session runs) and regions (100 two-region merges). It takes about 7 minutes and writes tables.md, results.json, detection.csv, rotation.csv and regions.csv to `$TRADEQ_DATA_DIR/market-tape-recorder/reports/`. `make report-smoke` does a 20-second check.
-3. New files: experiments/regions.py (experiment 3) and tests/unit/test_report_stats.py. The README is written, with a key-results table.
-4. The report text is drafted. The orchestrator writes it to docs/report.md from the subagent's final message (a scratchpad copy is mtr_report.md). If docs/report.md is missing, that step is still open.
-5. Headline numbers: the certificate caught 600 of 600 faults per fault type and raised 0 false alarms on 600 clean runs. cryptofeed missed 200 of 200 duplicates. Overlapping rotation lost 0.0 trades per reconnect, against 75.0 for naive rotation. Merging two regions raised the certified days from 0% to 70%.
+1. `make lint typecheck test`: ruff and mypy clean, 138 passed, 3 live deselected, coverage 83% (the
+   download run loop is covered by the live smoke run, not by unit tests).
+   `make test-live`: ISS and T-Bank passed (re-run after the exchange-only change), AlgoPack skipped (no token).
+2. Live run 2026-11-05: ISS live test passed; a 120 s `tape record --venue moex-iss --raw-log` (SBER, GAZP,
+   LKOH) wrote 293,099 rows under `tape/venue=moex-iss/`, raw frames under `raw/`, certificates
+   `failed` on the day window (coverage ~0.1%) and `degraded` on the observed window; no gaps, no crossed
+   books, no parse errors. The first, buggy capture (2011 candles) is in `quarantine/2026-11-05-iss-candles-from-2011/`.
+3. T-Bank works through SPKI pinning (no Russian CA is trusted anywhere): pin
+   `sha256/xU/NS71QVL2qP8naQf6PUKFhVehLfvYnI4CFs5qo6iQ=` for invest-public-api.tbank.ru (REST and stream),
+   leaf `*.tbank.ru` valid to 2027-08-24, cert SHA-256 `22:4F:05:8D:...:2D:06:23:99` (full value in
+   config/settings.yaml). Re-pin: `tape pin-show <host>`, compare with the browser, add the new pin next to
+   the old one. No geo-block or throttling from the Netherlands on 2026-11-05 (requests about 0.3 s).
+4. T-Bank live run 2026-11-05 ~23:07 MSK: live test passed; 120 s record wrote 24,049 rows; certify on the
+   observed window: SBER and GAZP certified, LKOH degraded (0.785). Fixed: subscriptions now ask for exchange
+   books/trades/candles only (the defaults mix in T-Bank's dealer market) and dealer messages are dropped.
+   Real excerpt: tests/fixtures/real/moex-tbank-2026-11-05.json.
+5. `reference/tbank_zero_fee_funds.json`: every listing of each T-Capital fund (BASE + ALL Etfs merged by
+   uid, 845 assets): 167 listings, 28 on TQTF, 20 TQBR, 12 SPBRU; `api_tradable` true for 23; rule
+   `asset.brand.company` matches `Т-Капитал` (165) or `Тинькофф Капитал` (2); `base_tickers` (66) strips `@...`
+   and `_OTC`. Consumers (I9 commission.py, I5 costs.py, S8 fees.py) read `funds[].ticker`/`instrument_uid`,
+   so TMOS/TQTF, TGLD/TQTF and TPAY/TQBR resolve to 0% without changes. 429s are retried after
+   `x-ratelimit-reset`; a list with unresolved assets is not written. A run takes about 5 minutes.
+6. `staging/` holds 9 `.inprogress` files from the ISS run that was killed when the user paused work;
+   they are orphans (the writer warns `staging_orphans`) and can be removed by the user.
+
+7. Bulk download (2026-11-06): `tape universe` -> 282 instruments (254 TQBR shares, 28 TQTF funds);
+   `scripts/download-all.sh --smoke` passed (828 day rows, 6,350 minute rows, I2 ingested 7,181). The
+   full run on 2026-11-06 took 3.5 hours (17:22 to 20:52 MSK): day candles 765,090 rows from T-Bank plus
+   63,826 from ISS before T-Bank's first candle; 1-minute 28,603,914 rows (85,124 requests); 0 failed chunks;
+   certified; I2 ingested 29.4M rows (I2 parquet 1.1 GB, tape 1 GB). Day report: 253 of 282 instruments show
+   calendar gaps, mostly weekend sessions that funds and thin names do not trade (see missing_weekdays).
+
+Open items, in order: a full T-Bank day; AlgoPack token run; cross-source certificate check; ISS+
+STOMP order books; a MOEX version of the report.
 
 ## Mistakes and lessons
 
-1. The Makefile `report` target called a module `tape_recorder.experiments` that never existed. The fix keeps `experiments/` at the top level and runs `python -m experiments` from the repo root, where make -C sets the cwd. The same command fails when it runs from another directory ("No module named experiments").
-2. cryptofeed needs network access to load its symbol table. The workaround is to pre-seed it with `Symbols.set(BINANCE, {'BTC-USDT': 'BTCUSDT'}, {})` and stub the snapshot fetch, which lets it run offline. Its `cross_check` flag is its strictest mode.
-3. Use `git -C`, `make -C` and single commands, because compound shell commands are denied.
-4. Commit early. The first session lost its uncommitted experiments to a rate limit, and this session committed them first, as found.
-5. Subagents may not write report files. Return the report text, and the orchestrator writes `docs/report.md`.
-6. mypy on `experiments/` needs `follow_imports = "skip"` for cryptofeed. Otherwise its results depend on whether the bench group is installed, because the installed package is partly typed.
-7. A pooled rate can hide a venue split. The gap monitor showed 0.333 for every fault, including clean streams, because it alarms on every OKX stream (exponential arrivals) and only on re-subscriptions elsewhere. Table 3 now reports it per venue.
-8. The rotation experiment runs on wall-clock time, so do not run it while another CPU-heavy job runs. Its numbers vary slightly between runs, and the detection and regions numbers are deterministic.
-9. Certify synthetic streams with `quality.coverage_window: observed`, because a full-day window marks a stream of less than a minute as uncovered. The runner sets this in report_settings().
-10. A merge cannot recover a message that both regions lost. 30 of 100 merged days stayed degraded, because a drop in one region fell inside the outage of the other.
-
-## MOEX pivot (2026-10-29)
-
-The user narrowed the platform to MOEX only and asked for code written from the vendor docs, because tokens
-come later (T-Bank first, AlgoPack later). Source facts: `../docs/moex-sources.md`; T-Invest protobuf
-contracts: `../docs/tinvest-contracts/`. Brief: `../prompts/02-market-tape-recorder.md`, revision 2.
-
-What changed:
-1. Removed: Binance, Bybit, OKX and Hyperliquid adapters, their fixtures and live tests, `experiments/`,
-   `config/report.yaml`, the `bench` group (cryptofeed) and `make report`. All of it is in git history before
-   this commit; `docs/report.md` carries an "outdated" banner pointing at commit `e845dbc`.
-2. Venues are named by source: `moex-tbank` (adapter `tbank`), `moex-algopack` and `moex-iss` (adapter
-   `moex_iss`). Tokens come only from the env variable named by `token_env` (`TBANK_TOKEN`,
-   `ALGOPACK_TOKEN`); `token_required` venues are skipped by `enabled_venues()` when the token is missing.
-   `load_settings` loads `.env` into the environment for that reason.
-3. `adapters/tbank.py`: WebSocket `MarketDataStream` (path confirmed in the AsyncAPI spec of the investAPI
-   repo), bearer token in the handshake, subprotocol `json`; subscribes books, trades, 1-minute candles and
-   trading status; resolves symbols through `InstrumentsService/ShareBy` (REST POST, tag `share`, passes through
-   the pipeline so the raw log keeps it); parses camelCase and snake_case alike (`snake_keys`). Trades have no
-   id, so the dedup key is the full content.
-4. `adapters/moex.py`: trades (TRADENO cursor), 20-level book (SEQNUM), candles (cursor on `begin`), marketdata
-   (TRADINGSTATUS, lot-size check), Super Candles with `latest=1`; `poll_every` per tag.
-5. Schema: channels `candles`, `trading_status`, `tradestats`, `orderstats`, `obstats` (`StatsBar` record whose
-   channel is a field), `trades.trading_session`. Crypto channels stay in the schema so old tapes load.
-6. Transport: `RestRequest.method/body` (POST JSON), WebSocket headers and subprotocols.
-7. Priority: `priority.*` settings, `apply_priority`, event-loop lag probe, `GET /v1/load` (`pressure`), writer
-   `buffered_rows`.
-8. `history.py` + `tape backfill`: T-Bank `GetCandles` per day, AlgoPack candles with `start=` paging and Super
-   Candles per day; deduplicated within a run.
-9. Certificate: clock skew only over event channels (`SKEW_CHANNELS`), because bar times lag arrival; T-Bank
-   re-subscription threshold 1000 ms (books are pushed only on change).
-
-State: `make lint typecheck test` clean, 92 tests (3 live deselected), coverage 91%; `make reproduce` works.
-No live run has happened.
-
-Open items, in order: first live run with `TBANK_TOKEN` (`make test-live`), compare real payloads with the
-fixtures; cross-source certificate check; ISS+ STOMP order books; a MOEX version of the report.
-
-Mistakes and lessons of this pass:
-1. pydantic-settings env names cannot address dict keys with a dash (`moex-tbank`), which is why tokens use
-   `token_env` instead of `TAPE_VENUES__...__API_KEY`.
-2. A `.env` read only by pydantic never reaches `os.environ`; anything read with `os.environ` needs
-   `load_dotenv`. Tests then must chdir away from the repo and unset the token variables.
-3. The T-Bank docs site uses a Russian CA, which the built-in browser and WebFetch refuse; Chrome works, and the
-   GitHub repo RussianInvestments/investAPI has the contracts and the AsyncAPI spec in plain files.
-4. ISS candle `volume` is already in shares (value / price = volume in the docs example), unlike order-book and
-   trade quantities, which are lots.
+1. pydantic-settings env names cannot address dict keys with a dash (`moex-tbank`): tokens use `token_env`,
+   and enabling `moex-iss` needs a config file copy (`--config`), not `TAPE_VENUES__...`.
+2. python-dotenv's default search starts at the calling module's directory, so `load_settings` found the
+   repository `.env` (with the real token) even inside tests that chdir away. It now uses
+   `find_dotenv(usecwd=True)`; run the CLI from the repository directory.
+3. ISS `candles.json` without `from` returns the security's oldest candles; always pass `from`.
+4. The first ISS trades poll replays the whole day from TRADENO 0, so the skew median of a short capture
+   is hours; judge the delay by the minimum skew (900 s).
+5. ISS candle `volume` is already in shares; order-book and trade quantities are lots.
+6. Use `git -C`, `make -C` and single commands; compound shell commands may be denied. Subagents return
+   report text instead of writing report files.
+7. T-Bank docs and API use the Russian CA, which is not trusted here: pin the API host instead; the
+   built-in browser and WebFetch refuse the docs site. The GitHub repo
+   RussianInvestments/investAPI has the contracts and the AsyncAPI spec in plain files.
+8. `instruments-ref` once dropped funds silently when GetAssetBy hit 429; a reference list must fail
+   rather than be partial.
+9. Live tests read the token from the process env or the repo .env before the test fixture clears it;
+   after the dotenv fix they would otherwise skip T-Bank.
+10. T-Bank does not compress replies and closes transfers after about 30 s, so a 3-12 MB listing over a
+    slow link fails part-way; use the retrying fetcher and the BASE shares listing.

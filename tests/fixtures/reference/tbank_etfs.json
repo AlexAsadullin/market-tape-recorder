@@ -1,0 +1,128 @@
+{
+ "_note": "Hand-made from the InstrumentsService contract (Etfs BASE and ALL, GetAssetBy); shapes as seen on the live run 2026-11-05 (SPBRU '@' listing tradable, MOEX TQTF listing only in ALL).",
+ "etfs": {
+  "instruments": [
+   {
+    "figi": "FIGI00000001",
+    "ticker": "TFND1@",
+    "classCode": "SPBRU",
+    "lot": 1,
+    "currency": "rub",
+    "name": "Fund one",
+    "uid": "uid-1",
+    "assetUid": "asset-1",
+    "apiTradeAvailableFlag": true
+   },
+   {
+    "figi": "FIGI00000002",
+    "ticker": "TFND2",
+    "classCode": "TQTF",
+    "lot": 1,
+    "currency": "rub",
+    "name": "Fund two",
+    "uid": "uid-2",
+    "assetUid": "asset-2",
+    "apiTradeAvailableFlag": true
+   },
+   {
+    "figi": "FIGI00000003",
+    "ticker": "OTHR",
+    "classCode": "TQTF",
+    "lot": 10,
+    "currency": "rub",
+    "name": "Other manager fund",
+    "uid": "uid-3",
+    "assetUid": "asset-3"
+   },
+   {
+    "figi": "FIGI00000004",
+    "ticker": "NOAS",
+    "classCode": "TQTF",
+    "lot": 1,
+    "currency": "usd",
+    "name": "Fund without asset",
+    "uid": "uid-4"
+   }
+  ]
+ },
+ "assets": {
+  "asset-1": {
+   "asset": {
+    "uid": "asset-1",
+    "name": "Fund one",
+    "brand": {
+     "uid": "b1",
+     "name": "Т-Капитал",
+     "company": "АО «Т-Капитал»"
+    }
+   }
+  },
+  "asset-2": {
+   "asset": {
+    "uid": "asset-2",
+    "name": "Fund two",
+    "brand": {
+     "uid": "b1",
+     "name": "Tinkoff Capital",
+     "company": ""
+    }
+   }
+  },
+  "asset-3": {
+   "asset": {
+    "uid": "asset-3",
+    "name": "Other",
+    "brand": {
+     "uid": "b2",
+     "name": "Other AM",
+     "company": "Other Asset Management"
+    }
+   }
+  }
+ },
+ "etfs_all": {
+  "instruments": [
+   {
+    "figi": "FIGI00000005",
+    "ticker": "TFND1",
+    "classCode": "TQTF",
+    "lot": 1,
+    "currency": "rub",
+    "name": "Fund one",
+    "uid": "uid-5",
+    "assetUid": "asset-1",
+    "apiTradeAvailableFlag": false
+   },
+   {
+    "figi": "FIGI00000002",
+    "ticker": "TFND2",
+    "classCode": "TQTF",
+    "lot": 1,
+    "currency": "rub",
+    "name": "Fund two",
+    "uid": "uid-2",
+    "assetUid": "asset-2",
+    "apiTradeAvailableFlag": false
+   },
+   {
+    "figi": "FIGI00000003",
+    "ticker": "OTHR",
+    "classCode": "TQTF",
+    "lot": 10,
+    "currency": "rub",
+    "name": "Other manager fund",
+    "uid": "uid-3",
+    "assetUid": "asset-3"
+   },
+   {
+    "figi": "FIGI00000004",
+    "ticker": "NOAS",
+    "classCode": "TQTF",
+    "lot": 1,
+    "currency": "usd",
+    "name": "Fund without asset",
+    "uid": "uid-4"
+   }
+  ]
+ }
+}
