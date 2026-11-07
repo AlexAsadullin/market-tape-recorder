@@ -159,6 +159,8 @@ was seen from the Netherlands; the median clock skew of the stream was about 180
 
 ## Bulk history download
 
+Progress: `download/progress-<1d|1m>.json` under the project data root is rewritten on every tick (contract 6.2).
+
 `tape universe` lists `Shares` (status `download.shares_status`, default BASE) and `Etfs` (ALL) and keeps
 TQBR shares plus the T-Capital funds of the zero-fee list that trade on TQTF: 282 instruments on
 2026-11-06 (254 shares, 28 funds). It also writes `reference/moex_instruments_i2.jsonl` for I2's

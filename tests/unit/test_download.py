@@ -14,6 +14,7 @@ from tape_recorder.download import (
     FetchError,
     HttpReply,
     LimitedFetcher,
+    Progress,
     RateLimiter,
     StoppedError,
     backoff_s,
@@ -245,3 +246,14 @@ def test_i2_rows_keep_times_when_rules_unchanged() -> None:
     moved = i2_rows(changed, 9_000_000_000, {r["symbol"]: r for r in first})
     assert moved[0]["published_at"] != first[0]["published_at"]
     assert moved[0]["lot_size"] == 100.0
+
+
+def test_progress_document_reports_fraction_and_eta() -> None:
+    t = [0.0]
+    p = Progress(total_chunks=10, started=0.0, monotonic=lambda: t[0])
+    p.done_chunks, p.rows, t[0] = 4, 400, 8.0
+    doc = p.document("minute", "running", requests=5, now_ns=123)
+    assert doc["fraction"] == 0.4
+    assert doc["eta_s"] == 12  # 6 chunks left at 0.5 chunks per second
+    assert doc["updated_at_ns"] == 123
+    assert p.document("minute", "done", requests=5, now_ns=124)["eta_s"] is None

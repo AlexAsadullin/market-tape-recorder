@@ -596,6 +596,25 @@ class Progress:
             "eta": None if eta is None else str(timedelta(seconds=round(eta))),
         }
 
+    def document(self, interval: str, state: str, requests: int, now_ns: int) -> dict[str, Any]:
+        """Live progress, ``download/progress-<interval>.json`` (contract 6.2), for dashboards."""
+        elapsed = max(self.monotonic() - self.started, 1e-9)
+        rate = self.done_chunks / elapsed
+        left = self.total_chunks - self.done_chunks
+        return {
+            "schema_version": "1",
+            "interval": interval,
+            "state": state,
+            "done_chunks": self.done_chunks,
+            "total_chunks": self.total_chunks,
+            "fraction": round(self.done_chunks / max(self.total_chunks, 1), 4),
+            "rows": self.rows,
+            "requests": requests,
+            "eta_s": round(left / rate) if rate > 0 and state == "running" else None,
+            "elapsed_s": round(elapsed),
+            "updated_at_ns": now_ns,
+        }
+
 
 @dataclass(slots=True)
 class DownloadSummary:
@@ -821,8 +840,16 @@ class Downloader:
         def requests() -> int:
             return sum(f.stats.requests for f in self.fetchers.values())
 
+        progress_file = self.settings.project_root / self.cfg.dir / f"progress-{interval}.json"
+
+        def publish(state: str) -> None:
+            doc = progress.document(interval, state, requests(), self.clock())
+            progress_file.parent.mkdir(parents=True, exist_ok=True)
+            atomic_write_bytes(progress_file, orjson.dumps(doc, option=orjson.OPT_INDENT_2))
+
         async def reporter() -> None:
             while True:
+                publish("running")
                 await asyncio.sleep(self.cfg.progress_interval_s)
                 log.info("download_progress", interval=interval, **progress.line(requests()))
 
@@ -838,6 +865,7 @@ class Downloader:
                 await report
         log.info("download_done", interval=interval, **progress.line(requests()))
         summary.stopped = self.stop.is_set()
+        publish("stopped" if summary.stopped else "done")
         summary.fetch = {v: f.stats for v, f in self.fetchers.items()}
         return summary
 

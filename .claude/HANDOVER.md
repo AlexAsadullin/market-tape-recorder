@@ -103,3 +103,15 @@ STOMP order books; a MOEX version of the report.
    after the dotenv fix they would otherwise skip T-Bank.
 10. T-Bank does not compress replies and closes transfers after about 30 s, so a 3-12 MB listing over a
     slow link fails part-way; use the retrying fetcher and the BASE shares listing.
+
+## Linux host (2026-11-08)
+
+1. `tape download` writes `download/progress-<1d|1m>.json` (contract 6.2) on every progress tick and at the end;
+   the RL dashboard reads it. Test `test_progress_document_reports_fraction_and_eta`. 139 tests.
+2. Full re-download on the Linux host started 2026-11-08 01:19 MSK: daily done (829,995 rows, 282 instruments);
+   1-minute running (84,860 chunks).
+3. Continuous recording since 2026-11-08 01:20 MSK: `tape record --venue moex-tbank --config
+   $TRADEQ_DATA_DIR/market-tape-recorder/config/record-liquid.yaml` (host-local copy of the settings with 24 liquid
+   names, lots and ticks from `reference/moex_instruments_i2.jsonl`). Logs in `$TRADEQ_DATA_DIR/logs/`.
+4. Open: the T-Capital funds TMOS and TGLD fail instrument resolution in the recorder (`ShareBy` returns 404 for
+   funds; they need `EtfBy`), so the stream records the 22 shares only.
