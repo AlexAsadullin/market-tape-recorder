@@ -191,7 +191,7 @@ download:                    # tape universe / tape download (bulk history, see 
   universe_file: universe_moex.json          # written to reference/
   i2_instruments_file: moex_instruments_i2.jsonl  # I2 moex.instruments file drop, in reference/
   share_boards: [TQBR]
-  fund_boards: [TQTF]          # T-Capital funds from reference/tbank_zero_fee_funds.json
+  fund_boards: [TQTF, TQBR]    # T-Capital funds (reference/tbank_zero_fee_funds.json); they moved to TQBR in mid-2026
   shares_status: INSTRUMENT_STATUS_BASE  # ALL (~12 MB, all exchanges) is cut off by the server
   workers: 8                   # concurrent requests; the rate limiter is shared
   rate_fraction: 0.8           # pace at 80% of x-ratelimit-limit (600/min market data)

@@ -251,6 +251,56 @@ def instruments_ref(
         raise typer.Exit(1) from exc
 
 
+@app.command()
+def calendar(
+    venue: Annotated[str, typer.Option(help="T-Bank venue whose token is used.")] = "moex-tbank",
+    since: Annotated[
+        str, typer.Option(help="First date of the calendar, YYYY-MM-DD.")
+    ] = "2024-01-01",
+    horizon_days: Annotated[int, typer.Option(help="Days ahead for scheduled events.")] = 365,
+    config: ConfigOpt = None,
+) -> None:
+    """Dividends and report dates of funds and IMOEX constituents -> reference/calendar_i2.jsonl."""
+    from datetime import date as _date
+
+    from tape_recorder.calendar_ref import build_calendar, imoex_constituents
+
+    settings = _settings(config)
+    cfg = settings.venues[venue]
+    if cfg.token() is None:
+        raise typer.BadParameter(f"{venue} needs its token in ${cfg.token_env}")
+    uni_path, _ = _universe_paths(settings)
+    entries: list[dict[str, Any]] = orjson.loads(uni_path.read_bytes())["instruments"]
+    start = _date.fromisoformat(since)
+    out_path = settings.project_root / settings.reference.dir / "calendar_i2.jsonl"
+
+    async def main() -> None:
+        async with http_client(settings.http) as client:
+            iss = str(settings.venues["moex-iss"].rest_url or "https://iss.moex.com")
+            held = await imoex_constituents(client, iss, start, _date.today())
+            wanted = [
+                e
+                for e in entries
+                if (e["kind"] == "fund" and e["class_code"] == "TQBR")
+                or (e["kind"] == "share" and e["ticker"] in held)
+            ]
+            rows, stats = await build_calendar(
+                TBankAdapter(venue, cfg),
+                HttpxFetcher(client),
+                wanted,
+                start,
+                horizon_days,
+                settings.reference.min_request_interval_s,
+            )
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = out_path.with_suffix(".jsonl.tmp")
+        tmp.write_bytes(b"".join(orjson.dumps(r) + b"\n" for r in rows))
+        tmp.replace(out_path)
+        typer.echo(f"{out_path} rows={len(rows)} imoex_constituents={len(held)} {stats}")
+
+    asyncio.run(main())
+
+
 def _universe_paths(settings: Settings) -> tuple[Path, Path]:
     ref = settings.project_root / settings.reference.dir
     return ref / settings.download.universe_file, ref / settings.download.i2_instruments_file
@@ -323,8 +373,17 @@ def download(
     entries: list[dict[str, Any]] = orjson.loads(uni_path.read_bytes())["instruments"]
     if symbols:
         wanted = {s.strip().upper() for s in symbols.split(",") if s.strip()}
-        entries = [e for e in entries if str(e["ticker"]).upper() in wanted]
-        unknown = wanted - {str(e["ticker"]).upper() for e in entries}
+        # A ticker selects every listing of it; a full symbol (TMOS-RUB-TQBR) selects one board.
+        entries = [
+            e
+            for e in entries
+            if str(e["ticker"]).upper() in wanted or str(e["symbol"]).upper() in wanted
+        ]
+        unknown = (
+            wanted
+            - {str(e["ticker"]).upper() for e in entries}
+            - {str(e["symbol"]).upper() for e in entries}
+        )
         if unknown:
             raise typer.BadParameter(f"not in the universe: {sorted(unknown)}")
     cfg = settings.download

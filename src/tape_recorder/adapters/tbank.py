@@ -76,6 +76,9 @@ DEALER_SOURCES = frozenset(
 ALLOWED_REST_METHODS: frozenset[str] = frozenset(
     {
         "InstrumentsService/ShareBy",
+        "InstrumentsService/GetInstrumentBy",
+        "InstrumentsService/GetDividends",
+        "InstrumentsService/GetAssetReports",
         "InstrumentsService/Shares",
         "InstrumentsService/Etfs",
         "InstrumentsService/GetAssetBy",
@@ -236,14 +239,17 @@ class TBankAdapter:
         )
 
     def resolve_requests(self) -> list[RestRequest]:
-        """``ShareBy`` per symbol; run once before streaming, so uid-only messages can be mapped.
+        """``GetInstrumentBy`` per symbol, once before streaming, to map uid-only messages.
+
+        ``GetInstrumentBy`` answers for every instrument type; ``ShareBy`` returned 404 for the
+        T-Capital funds (TMOS, TGLD), so their stream messages were dropped (until 2026-11-08).
 
         The answers go through :meth:`parse_rest` (tag ``share``) like any REST frame, so the raw
         log and offline replays carry the resolution too.
         """
         return [
             self._rest(
-                "InstrumentsService/ShareBy",
+                "InstrumentsService/GetInstrumentBy",
                 "share",
                 native,
                 {"idType": "INSTRUMENT_ID_TYPE_TICKER", "classCode": sym.board, "id": native},
@@ -284,6 +290,24 @@ class TBankAdapter:
     def asset_request(self, asset_uid: str) -> RestRequest:
         """``InstrumentsService/GetAssetBy``: the asset of a fund, with its brand and company."""
         return self._rest("InstrumentsService/GetAssetBy", "asset", "", {"id": asset_uid})
+
+    def dividends_request(self, instrument_uid: str, start_ns: int, end_ns: int) -> RestRequest:
+        """``InstrumentsService/GetDividends``: declared, last-buy, record and payment dates."""
+        return self._rest(
+            "InstrumentsService/GetDividends",
+            "dividends",
+            "",
+            {"instrumentId": instrument_uid, "from": ns_to_iso(start_ns), "to": ns_to_iso(end_ns)},
+        )
+
+    def asset_reports_request(self, instrument_uid: str, start_ns: int, end_ns: int) -> RestRequest:
+        """``InstrumentsService/GetAssetReports``: scheduled report dates of the issuer."""
+        return self._rest(
+            "InstrumentsService/GetAssetReports",
+            "asset_reports",
+            "",
+            {"instrumentId": instrument_uid, "from": ns_to_iso(start_ns), "to": ns_to_iso(end_ns)},
+        )
 
     def candles_request(
         self, native: str, start_ns: int, end_ns: int, interval: str = "CANDLE_INTERVAL_1_MIN"
