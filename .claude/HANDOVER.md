@@ -115,3 +115,16 @@ STOMP order books; a MOEX version of the report.
    names, lots and ticks from `reference/moex_instruments_i2.jsonl`). Logs in `$TRADEQ_DATA_DIR/logs/`.
 4. Open: the T-Capital funds TMOS and TGLD fail instrument resolution in the recorder (`ShareBy` returns 404 for
    funds; they need `EtfBy`), so the stream records the 22 shares only.
+
+## Funds and calendar (2026-11-08)
+
+1. T-Capital funds moved from TQTF to TQBR in mid-2026 (new instrument uids with full history); the TQTF
+   listings stop on 2026-06-19. `download.fund_boards: [TQTF, TQBR]`; `tape download --symbols` accepts full
+   symbols (TMOS-RUB-TQBR). Downloaded 734,725 one-minute fund bars.
+2. The recorder resolves instruments with `GetInstrumentBy` (ShareBy returned 404 for funds). Recording 15 funds +
+   22 shares with `$TRADEQ_DATA_DIR/market-tape-recorder/config/record-liquid.yaml`.
+3. `tape calendar`: `GetDividends` and `GetAssetReports` (read-only, on the allowlist) for the funds and every
+   IMOEX constituent since 2024 -> `reference/calendar_i2.jsonl` (`cal.div`, `cal.divamt`, `cal.report`; event date
+   in the series id, valid time = announcement). 776 rows on 2026-11-08. 142 tests.
+4. Lesson: `pkill -f <pattern>` kills the calling shell when the pattern is in its own command line; use
+   `pgrep -f "[t]ape calendar"` style patterns or PID files.
